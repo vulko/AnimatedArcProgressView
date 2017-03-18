@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">AnimatedArcProgressView</string>
+
+    <string-array name="animationTypes">
+        <item>AnimationType.RACE_CONDITION</item>
+        <item>AnimationType.SWIRLY</item>
+        <item>AnimationType.WHIRPOOL</item>
+        <item>AnimationType.HYPERLOOP</item>
+        <item>AnimationType.METRONOME</item>
+    </string-array>
+</resources>

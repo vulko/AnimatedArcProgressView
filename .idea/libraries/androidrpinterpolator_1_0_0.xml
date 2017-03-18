@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="androidrpinterpolator-1.0.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.android/build-cache/fbeb818f18eae9a31a262eeb17d549d57048a91e/output/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.android/build-cache/fbeb818f18eae9a31a262eeb17d549d57048a91e/output/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.r21nomi/androidrpinterpolator/1.0.0/25949e8f323f1b22e794b52a34fc4c4191f480a0/androidrpinterpolator-1.0.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
