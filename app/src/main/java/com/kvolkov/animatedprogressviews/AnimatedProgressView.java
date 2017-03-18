@@ -10,9 +10,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.Build;
+import android.support.annotation.ColorInt;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -43,6 +43,7 @@ public class AnimatedProgressView extends View {
             AnimationType.METRONOME_4,
             AnimationType.BUTTERFLY_KNIFE,
             AnimationType.RAINBOW,
+            AnimationType.GOTCHA,
     })
     public @interface AnimationType {
         int RACE_CONDITION = 0;
@@ -55,6 +56,7 @@ public class AnimatedProgressView extends View {
         int METRONOME_4 = 7;
         int BUTTERFLY_KNIFE = 8;
         int RAINBOW = 9;
+        int GOTCHA = 10;
     }
 
     /**
@@ -71,6 +73,7 @@ public class AnimatedProgressView extends View {
             1000,
             1000,
             1000,
+            1000,
     };
 
     /**
@@ -79,13 +82,14 @@ public class AnimatedProgressView extends View {
     protected static float sPEAK_BETA[] = {
             180.f,
             180.f,
-            90.f,
+            180.f,
             90.f,
             60.f,
             60.f,
             60.f,
             60.f,
             270.f,
+            360.f,
             360.f,
     };
 
@@ -103,12 +107,14 @@ public class AnimatedProgressView extends View {
             0.1f,
             0.1f,
             0.1f,
+            0.1f,
     };
 
     /**
      * Animation durations in [ms] for animation types. See {@link AnimationType}.
      */
     protected static float sINITIAL_ALPHA[] = {
+            270.f,
             270.f,
             270.f,
             270.f,
@@ -177,6 +183,13 @@ public class AnimatedProgressView extends View {
         mArcPaint.setAntiAlias(true);
 
         initAnimators();
+
+        // TODO: dirty init colors.
+        mColorList.add(Color.argb(255, 200, 0, 0));
+        mColorList.add(Color.argb(255, 0, 200, 0));
+        mColorList.add(Color.argb(255, 200, 0, 0));
+        mColorList.add(Color.argb(255, 0, 200, 0));
+        mColorList.add(Color.argb(255, 200, 0, 0));
     }
 
     protected void initAnimators() {
@@ -187,40 +200,74 @@ public class AnimatedProgressView extends View {
             mBetaAngleList.add(sINITIAL_BETA[mAnimationType]);
         }
 
-        switch (mAnimationType) {
-            case AnimationType.RACE_CONDITION:
-                initRaceConditionAnimators();
-                break;
+        for (int i = 0; i < ARC_COUNT; ++ i) {
+            final ValueAnimator alphaAnimator = new ValueAnimator();
+            final ValueAnimator betaAnimator = new ValueAnimator();
 
-            case AnimationType.SWIRLY:
-                initSwirlyAnimators();
-                break;
+            alphaAnimator.setDuration(sANIMATION_DURATION[mAnimationType]);
+            alphaAnimator.setStartDelay(ANIMATION_START_DELAY);
+            alphaAnimator.setRepeatCount(ValueAnimator.INFINITE);
+            alphaAnimator.setRepeatMode(ValueAnimator.RESTART);
 
-            case AnimationType.WHIRPOOL:
-                initWhirpoolAnimators();
-                break;
+            betaAnimator.setDuration(sANIMATION_DURATION[mAnimationType]);
+            betaAnimator.setStartDelay(ANIMATION_START_DELAY);
+            betaAnimator.setRepeatCount(ValueAnimator.INFINITE);
+            betaAnimator.setRepeatMode(ValueAnimator.RESTART);
 
-            case AnimationType.HYPERLOOP:
-                initHyperloopAnimators();
-                break;
+            switch (mAnimationType) {
+                case AnimationType.RACE_CONDITION:
+                    initRaceConditionAnimators(i, alphaAnimator, betaAnimator);
+                    break;
 
-            case AnimationType.METRONOME_1:
-            case AnimationType.METRONOME_2:
-                initMetronome12Animators();
-                break;
+                case AnimationType.SWIRLY:
+                    initSwirlyAnimators(i, alphaAnimator, betaAnimator);
+                    break;
 
-            case AnimationType.METRONOME_3:
-            case AnimationType.METRONOME_4:
-                initMetronome34Animators();
-                break;
+                case AnimationType.WHIRPOOL:
+                    initWhirpoolAnimators(i, alphaAnimator, betaAnimator);
+                    break;
 
-            case AnimationType.BUTTERFLY_KNIFE:
-                initButterflyKnifeAnimators();
-                break;
+                case AnimationType.HYPERLOOP:
+                    initHyperloopAnimators(i, alphaAnimator, betaAnimator);
+                    break;
 
-            case AnimationType.RAINBOW:
-                initRainbowAnimators();
-                break;
+                case AnimationType.METRONOME_1:
+                case AnimationType.METRONOME_2:
+                    initMetronome12Animators(i, alphaAnimator, betaAnimator);
+                    break;
+
+                case AnimationType.METRONOME_3:
+                case AnimationType.METRONOME_4:
+                    initMetronome34Animators(i, alphaAnimator, betaAnimator);
+                    break;
+
+                case AnimationType.BUTTERFLY_KNIFE:
+                    initButterflyKnifeAnimators(i, alphaAnimator, betaAnimator);
+                    break;
+
+                case AnimationType.RAINBOW:
+                case AnimationType.GOTCHA:
+                    initRainbowOrGotchaAnimators(i, alphaAnimator, betaAnimator);
+                    break;
+            }
+
+            mAlphaValueAnimatorList.add(alphaAnimator);
+            mBetaValueAnimatorList.add(betaAnimator);
+        }
+    }
+
+    /**
+     * Add color to color list.
+     *
+     * @param colorInt  A {@link ColorInt}.
+     *
+     * @throws IllegalStateException In case of adding more colors, then there are arcs. See {@link #ARC_COUNT}.
+     */
+    public void addColor(@ColorInt int colorInt) throws IllegalStateException {
+        mColorList.add(colorInt);
+
+        if (mColorList.size() > ARC_COUNT) {
+            throw new IllegalStateException("can't add more colors as there are arcs!");
         }
     }
 
@@ -314,58 +361,42 @@ public class AnimatedProgressView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        switch (mAnimationType) {
-            case AnimationType.RACE_CONDITION:
-                canvas.save();
-                for (int i = 0; i < ARC_COUNT; ++i) {
-                    canvas.drawArc(mArcRectList.get(i), mAlphaAngleList.get(i), mBetaAngleList.get(i), false, mArcPaint);
-                }
-                canvas.restore();
-                break;
+        for (int i = 0; i < ARC_COUNT; ++i) {
+            canvas.save();
 
-            case AnimationType.SWIRLY:
-            case AnimationType.WHIRPOOL:
-            case AnimationType.HYPERLOOP:
-                canvas.save();
-                for (int i = 0; i < ARC_COUNT; ++i) {
+            mArcPaint.setColor(mColorList.get(i));
+            switch (mAnimationType) {
+                case AnimationType.RACE_CONDITION:
                     canvas.drawArc(mArcRectList.get(i), mAlphaAngleList.get(i), mBetaAngleList.get(i), false, mArcPaint);
-                }
-                canvas.restore();
-                break;
+                    break;
 
-            case AnimationType.METRONOME_1:
-            case AnimationType.METRONOME_2:
-                canvas.save();
-                for (int i = 0; i < ARC_COUNT; ++i) {
+                case AnimationType.SWIRLY:
+                case AnimationType.WHIRPOOL:
+                case AnimationType.HYPERLOOP:
+                    canvas.drawArc(mArcRectList.get(i), mAlphaAngleList.get(i), mBetaAngleList.get(i), false, mArcPaint);
+                    break;
+
+                case AnimationType.METRONOME_1:
+                case AnimationType.METRONOME_2:
                     canvas.drawArc(mArcRectList.get(i), sINITIAL_ALPHA[mAnimationType] + mAlphaAngleList.get(i), mBetaAngleList.get(i), false, mArcPaint);
-                }
-                canvas.restore();
-                break;
+                    break;
 
-            case AnimationType.METRONOME_3:
-            case AnimationType.METRONOME_4:
-                canvas.save();
-                for (int i = 0; i < ARC_COUNT; ++i) {
+                case AnimationType.METRONOME_3:
+                case AnimationType.METRONOME_4:
                     canvas.drawArc(mArcRectList.get(i), sINITIAL_ALPHA[mAnimationType] - mBetaAngleList.get(i), mAlphaAngleList.get(i), false, mArcPaint);
-                }
-                canvas.restore();
-                break;
+                    break;
 
-            case AnimationType.BUTTERFLY_KNIFE:
-                canvas.save();
-                for (int i = 0; i < ARC_COUNT; ++i) {
+                case AnimationType.BUTTERFLY_KNIFE:
                     canvas.drawArc(mArcRectList.get(i), sINITIAL_ALPHA[mAnimationType] - mBetaAngleList.get(i), mAlphaAngleList.get(i), false, mArcPaint);
-                }
-                canvas.restore();
-                break;
+                    break;
 
-            case AnimationType.RAINBOW:
-                canvas.save();
-                for (int i = 0; i < ARC_COUNT; ++i) {
+                case AnimationType.RAINBOW:
+                case AnimationType.GOTCHA:
                     canvas.drawArc(mArcRectList.get(i), sINITIAL_ALPHA[mAnimationType] + mBetaAngleList.get(i), -mAlphaAngleList.get(i), false, mArcPaint);
-                }
-                canvas.restore();
-                break;
+                    break;
+            }
+
+            canvas.restore();
         }
     }
 
@@ -385,401 +416,305 @@ public class AnimatedProgressView extends View {
         }
     }
 
-    private void initRaceConditionAnimators() {
-        for (int i = 0; i < ARC_COUNT; ++i) {
-            final int index = i;
-            final float factor = 0.05f * (i + 1);
+    private void initRaceConditionAnimators(int i, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
+        final int index = i;
+        final float factor = 0.05f * (i + 1);
 
-            final ValueAnimator alphaAnimator = new ValueAnimator();
-            final float randomAlpha = 360.f;
-            alphaAnimator.setFloatValues(sINITIAL_ALPHA[mAnimationType],
-                    randomAlpha + sINITIAL_ALPHA[mAnimationType],
-                    randomAlpha * 2.f + sINITIAL_ALPHA[mAnimationType],
-                    randomAlpha * 3.f + sINITIAL_ALPHA[mAnimationType]);
-            alphaAnimator.setDuration(sANIMATION_DURATION[mAnimationType]);
-            alphaAnimator.setStartDelay(ANIMATION_START_DELAY);
-            alphaAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            alphaAnimator.setRepeatMode(ValueAnimator.RESTART);
-            final float alphaDecelerateFactor = (i % 2 == 0) ? 1.f + factor : 1.f - factor;
-            alphaAnimator.setInterpolator(new DecelerateInterpolator(alphaDecelerateFactor));
-            alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    final float newAngle = (float) animation.getAnimatedValue();
-                    if (Math.abs(mAlphaAngleList.get(index) - newAngle) >= 0.5f) {
-                        mAlphaAngleList.set(index, newAngle);
-                        if (index == (ARC_COUNT - 1)) invalidate();
-                    }
-                }
-            });
-
-            final ValueAnimator betaAnimator = new ValueAnimator();
-            betaAnimator.setFloatValues(sINITIAL_BETA[mAnimationType], sPEAK_BETA[mAnimationType], sINITIAL_BETA[mAnimationType]);
-            betaAnimator.setDuration(sANIMATION_DURATION[mAnimationType]);
-            betaAnimator.setRepeatMode(ValueAnimator.RESTART);
-            betaAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            final float betaDecelerateFactor = (i % 2 == 0) ? 1.f + factor : 1.f - factor;
-            betaAnimator.setInterpolator(new DecelerateInterpolator(betaDecelerateFactor));
-            betaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    final float newAngle = (float) animation.getAnimatedValue();
-                    if (Math.abs(mBetaAngleList.get(index) - newAngle) >= 0.1f) {
-                        mBetaAngleList.set(index, newAngle);
-                        if (index == (ARC_COUNT - 1)) invalidate();
-                    }
-                }
-            });
-
-            mAlphaValueAnimatorList.add(alphaAnimator);
-            mBetaValueAnimatorList.add(betaAnimator);
-        }
-    }
-
-    private void initSwirlyAnimators() {
-        for (int i = 0; i < ARC_COUNT; ++ i) {
-            final int index = i;
-
-            final ValueAnimator alphaAnimator = new ValueAnimator();
-            final float randomAlpha = 360.f;
-            alphaAnimator.setFloatValues(sINITIAL_ALPHA[mAnimationType],
-                    randomAlpha + sINITIAL_ALPHA[mAnimationType],
-                    randomAlpha * 2.f + sINITIAL_ALPHA[mAnimationType],
-                    randomAlpha * 3.f + sINITIAL_ALPHA[mAnimationType],
-                    randomAlpha * 3.5f + sINITIAL_ALPHA[mAnimationType]);
-            alphaAnimator.setDuration(sANIMATION_DURATION[mAnimationType]);
-            alphaAnimator.setStartDelay(ANIMATION_START_DELAY);
-            alphaAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            alphaAnimator.setRepeatMode(ValueAnimator.REVERSE);
-            final float alphaDecelerateFactor = 1.f - 0.05f * ( index * index );
-            alphaAnimator.setInterpolator(new DecelerateInterpolator(alphaDecelerateFactor));
-            alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    final float newAngle = (float) animation.getAnimatedValue();
-                    if (Math.abs(mAlphaAngleList.get(index) - newAngle) >= 1.f) {
-                        mAlphaAngleList.set(index, newAngle);
-                        if (index == (ARC_COUNT - 1)) invalidate();
-                    }
-                }
-            });
-
-            final ValueAnimator betaAnimator = new ValueAnimator();
-            betaAnimator.setFloatValues(sINITIAL_BETA[mAnimationType], sPEAK_BETA[mAnimationType], sINITIAL_BETA[mAnimationType]);
-            betaAnimator.setDuration(sANIMATION_DURATION[mAnimationType]);
-            betaAnimator.setRepeatMode(ValueAnimator.RESTART);
-            betaAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            final float betaDecelerateFactor = 1.f + 0.05f * ( index * index );
-            betaAnimator.setInterpolator(new DecelerateInterpolator(betaDecelerateFactor));
-            betaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    final float newAngle = (float) animation.getAnimatedValue();
-                    if (Math.abs(mBetaAngleList.get(index) - newAngle) >= 0.1f) {
-                        mBetaAngleList.set(index, newAngle);
-                        if (index == (ARC_COUNT - 1)) invalidate();
-                    }
-                }
-            });
-
-            mAlphaValueAnimatorList.add(alphaAnimator);
-            mBetaValueAnimatorList.add(betaAnimator);
-        }
-    }
-
-    private void initHyperloopAnimators() {
-        for (int i = 0; i < ARC_COUNT; ++ i) {
-            final int index = i;
-
-            final ValueAnimator alphaAnimator = new ValueAnimator();
-            final float randomAlpha = 360.f;
-            alphaAnimator.setFloatValues(sINITIAL_ALPHA[mAnimationType],
-                    randomAlpha - sINITIAL_ALPHA[mAnimationType],
-                    randomAlpha * 2.f - sINITIAL_ALPHA[mAnimationType],
-                    randomAlpha * 3.f - sINITIAL_ALPHA[mAnimationType],
-                    randomAlpha * 4.f - sINITIAL_ALPHA[mAnimationType]);
-            alphaAnimator.setDuration(sANIMATION_DURATION[mAnimationType]);
-            alphaAnimator.setStartDelay(ANIMATION_START_DELAY);
-            alphaAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            alphaAnimator.setRepeatMode(ValueAnimator.RESTART);
-            final float alphaDecelerateFactor = 1.f - 0.1f * ( (float) (i + 1) * (i + 1) );
-            alphaAnimator.setInterpolator(new AccelerateInterpolator(alphaDecelerateFactor));
-            alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    final float newAngle = (float) animation.getAnimatedValue();
-                    if (Math.abs(mAlphaAngleList.get(index) - newAngle) >= 0.5f) {
-                        mAlphaAngleList.set(index, newAngle);
-                        if (index == (ARC_COUNT - 1)) invalidate();
-                    }
-                }
-            });
-
-            final ValueAnimator betaAnimator = new ValueAnimator();
-            betaAnimator.setFloatValues(sINITIAL_BETA[mAnimationType], sPEAK_BETA[mAnimationType], sINITIAL_BETA[mAnimationType]);
-            betaAnimator.setDuration(sANIMATION_DURATION[mAnimationType]);
-            betaAnimator.setRepeatMode(ValueAnimator.RESTART);
-            betaAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            final float betaDecelerateFactor = 1.f - 0.1f * ( (float) (i + 1) * (i + 1) );
-            final float hyperloop = 1.f + 0.01f * ( (float) (i + 1) * (i + 1) );
-            betaAnimator.setInterpolator(new AccelerateInterpolator(betaDecelerateFactor));
-            betaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    final float newAngle = (float) animation.getAnimatedValue();
-                    if (Math.abs(mBetaAngleList.get(index) - newAngle) >= 0.1f) {
-                        mBetaAngleList.set(index, newAngle * hyperloop);
-                        if (index == (ARC_COUNT - 1)) invalidate();
-                    }
-                }
-            });
-
-            mAlphaValueAnimatorList.add(alphaAnimator);
-            mBetaValueAnimatorList.add(betaAnimator);
-        }
-    }
-
-    private void initWhirpoolAnimators() {
-        for (int i = 0; i < ARC_COUNT; ++ i) {
-            final int index = i;
-            final ValueAnimator alphaAnimator = new ValueAnimator();
-            final float randomAlpha = 360.f;
-            alphaAnimator.setFloatValues(sINITIAL_ALPHA[mAnimationType],
-                    randomAlpha + sINITIAL_ALPHA[mAnimationType],
-                    randomAlpha * 2.f + sINITIAL_ALPHA[mAnimationType],
-                    randomAlpha * 3.f + sINITIAL_ALPHA[mAnimationType]);
-            alphaAnimator.setDuration(sANIMATION_DURATION[mAnimationType]);
-            alphaAnimator.setStartDelay(ANIMATION_START_DELAY);
-            alphaAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            alphaAnimator.setRepeatMode(ValueAnimator.RESTART);
-            final float alphaDecelerateFactor = 1.f + 0.1f * (i + 1);
-            alphaAnimator.setInterpolator(new DecelerateInterpolator(alphaDecelerateFactor));
-            alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    final float newAngle = (float) animation.getAnimatedValue();
-                    if (Math.abs(mAlphaAngleList.get(index) - newAngle) >= 0.5f) {
-                        mAlphaAngleList.set(index, newAngle);
-                        if (index == (ARC_COUNT - 1)) invalidate();
-                    }
-                }
-            });
-
-            final ValueAnimator betaAnimator = new ValueAnimator();
-            betaAnimator.setFloatValues(sINITIAL_BETA[mAnimationType], sPEAK_BETA[mAnimationType], sINITIAL_BETA[mAnimationType]);
-            betaAnimator.setDuration(sANIMATION_DURATION[mAnimationType]);
-            betaAnimator.setRepeatMode(ValueAnimator.RESTART);
-            betaAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            final float betaDecelerateFactor = 1.f - 0.05f * (i + 1);
-            betaAnimator.setInterpolator(new DecelerateInterpolator(betaDecelerateFactor));
-            betaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    final float newAngle = (float) animation.getAnimatedValue();
-                    if (Math.abs(mBetaAngleList.get(index) - newAngle) >= 0.1f) {
-                        mBetaAngleList.set(index, newAngle);
-                        if (index == (ARC_COUNT - 1)) invalidate();
-                    }
-                }
-            });
-
-            mAlphaValueAnimatorList.add(alphaAnimator);
-            mBetaValueAnimatorList.add(betaAnimator);
-        }
-    }
-
-    private void initMetronome12Animators() {
-        for (int i = 0; i < ARC_COUNT; ++ i) {
-            final int index = i;
-            final float alphaDecelerateFactor = 1.f + 0.1f * ( index * index );
-
-            final ValueAnimator alphaAnimator = new ValueAnimator();
-            if (mAnimationType == AnimationType.METRONOME_1) {
-                alphaAnimator.setFloatValues(-0.f, 0.f);
-                alphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-            } else if (mAnimationType == AnimationType.METRONOME_2) {
-                final float randomAlpha = 5.f;
-                alphaAnimator.setFloatValues(-randomAlpha, randomAlpha, -randomAlpha);
-                alphaAnimator.setInterpolator(new FastOutSlowInInterpolator());
-            }
-            alphaAnimator.setDuration(sANIMATION_DURATION[mAnimationType]);
-            alphaAnimator.setStartDelay(ANIMATION_START_DELAY);
-            alphaAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            alphaAnimator.setRepeatMode(ValueAnimator.REVERSE);
-            alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    final float newAngle = (float) animation.getAnimatedValue();
-                    if (Math.abs(mAlphaAngleList.get(index) - newAngle) >= 1.f) {
-                        mAlphaAngleList.set(index, newAngle);
-                        if (index == (ARC_COUNT - 1)) invalidate();
-                    }
-                }
-            });
-
-            final ValueAnimator betaAnimator = new ValueAnimator();
-            betaAnimator.setFloatValues(sPEAK_BETA[mAnimationType], -sPEAK_BETA[mAnimationType]);
-            betaAnimator.setDuration(sANIMATION_DURATION[mAnimationType]);
-            betaAnimator.setRepeatMode(ValueAnimator.REVERSE);
-            betaAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            final float betaDecelerateFactor = 1.f + 0.05f * ( index * index );
-            betaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-            betaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    final float newAngle = (float) animation.getAnimatedValue();
-                    if (Math.abs(mBetaAngleList.get(index) - newAngle) >= 0.5f) {
-                        mBetaAngleList.set(index, newAngle);
-                        if (index == (ARC_COUNT - 1)) invalidate();
-                    }
-                }
-            });
-
-            mAlphaValueAnimatorList.add(alphaAnimator);
-            mBetaValueAnimatorList.add(betaAnimator);
-        }
-    }
-
-    private void initMetronome34Animators() {
-        for (int i = 0; i < ARC_COUNT; ++ i) {
-            final int index = i;
-            final float alphaDecelerateFactor = 1.f + 0.05f * ( index * index );
-
-            final ValueAnimator alphaAnimator = new ValueAnimator();
-            if (mAnimationType == AnimationType.METRONOME_3) {
-                final float slownessDegree = 10.f;
-                alphaAnimator.setFloatValues(slownessDegree, sINITIAL_BETA[mAnimationType], slownessDegree, sINITIAL_BETA[mAnimationType], slownessDegree);
-                alphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-            } else if (mAnimationType == AnimationType.METRONOME_4) {
-                final float slownessDegree = 20.f;
-                alphaAnimator.setFloatValues(sINITIAL_BETA[mAnimationType], slownessDegree, sINITIAL_BETA[mAnimationType]);
-                alphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-            }
-            alphaAnimator.setDuration(sANIMATION_DURATION[mAnimationType]);
-            alphaAnimator.setStartDelay(ANIMATION_START_DELAY);
-            alphaAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            alphaAnimator.setRepeatMode(ValueAnimator.REVERSE);
-            alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    final float newAngle = (float) animation.getAnimatedValue();
+        final float randomAlpha = 360.f;
+        alphaAnimator.setFloatValues(sINITIAL_ALPHA[mAnimationType],
+                randomAlpha + sINITIAL_ALPHA[mAnimationType],
+                randomAlpha * 2.f + sINITIAL_ALPHA[mAnimationType],
+                randomAlpha * 3.f + sINITIAL_ALPHA[mAnimationType]);
+        final float alphaDecelerateFactor = (i % 2 == 0) ? 1.f + factor : 1.f - factor;
+        alphaAnimator.setInterpolator(new DecelerateInterpolator(alphaDecelerateFactor));
+        alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float newAngle = (float) animation.getAnimatedValue();
+                if (Math.abs(mAlphaAngleList.get(index) - newAngle) >= 0.5f) {
                     mAlphaAngleList.set(index, newAngle);
                     if (index == (ARC_COUNT - 1)) invalidate();
                 }
-            });
+            }
+        });
 
-            final ValueAnimator betaAnimator = new ValueAnimator();
-            betaAnimator.setFloatValues(sPEAK_BETA[mAnimationType], -sPEAK_BETA[mAnimationType]);
-            betaAnimator.setDuration(sANIMATION_DURATION[mAnimationType]);
-            betaAnimator.setRepeatMode(ValueAnimator.REVERSE);
-            betaAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            final float betaDecelerateFactor = 1.f + 0.05f * ( index * index );
-            betaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-            betaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    final float newAngle = (float) animation.getAnimatedValue();
+        betaAnimator.setFloatValues(sINITIAL_BETA[mAnimationType], sPEAK_BETA[mAnimationType], sINITIAL_BETA[mAnimationType]);
+        final float betaDecelerateFactor = (i % 2 == 0) ? 1.f + factor : 1.f - factor;
+        betaAnimator.setInterpolator(new DecelerateInterpolator(betaDecelerateFactor));
+        betaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float newAngle = (float) animation.getAnimatedValue();
+                if (Math.abs(mBetaAngleList.get(index) - newAngle) >= 0.1f) {
                     mBetaAngleList.set(index, newAngle);
-
-                    // redraw only once at the end of for loop
                     if (index == (ARC_COUNT - 1)) invalidate();
                 }
-            });
-
-            mAlphaValueAnimatorList.add(alphaAnimator);
-            mBetaValueAnimatorList.add(betaAnimator);
-        }
+            }
+        });
     }
 
-    private void initButterflyKnifeAnimators() {
-        for (int i = 0; i < ARC_COUNT; ++ i) {
-            final int index = i;
-            final float alphaDecelerateFactor = 1.f + 0.05f * ( index * index );
+    private void initSwirlyAnimators(int i, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
+        alphaAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        betaAnimator.setRepeatMode(ValueAnimator.REVERSE);
 
-            final ValueAnimator alphaAnimator = new ValueAnimator();
+        final int index = i;
+        final float randomAlpha = 360.f;
+        alphaAnimator.setFloatValues(sINITIAL_ALPHA[mAnimationType],
+                randomAlpha + sINITIAL_ALPHA[mAnimationType],
+                randomAlpha * 2.f + sINITIAL_ALPHA[mAnimationType],
+                randomAlpha * 3.f + sINITIAL_ALPHA[mAnimationType],
+                randomAlpha * 3.5f + sINITIAL_ALPHA[mAnimationType]);
+        final float alphaDecelerateFactor = 1.f - 0.05f * ( index * index );
+        alphaAnimator.setInterpolator(new DecelerateInterpolator(alphaDecelerateFactor));
+        alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float newAngle = (float) animation.getAnimatedValue();
+                if (Math.abs(mAlphaAngleList.get(index) - newAngle) >= 1.f) {
+                    mAlphaAngleList.set(index, newAngle);
+                    if (index == (ARC_COUNT - 1)) invalidate();
+                }
+            }
+        });
+
+        betaAnimator.setFloatValues(sINITIAL_BETA[mAnimationType], sPEAK_BETA[mAnimationType], sINITIAL_BETA[mAnimationType]);
+        final float betaDecelerateFactor = 1.f + 0.05f * ( index * index );
+        betaAnimator.setInterpolator(new DecelerateInterpolator(betaDecelerateFactor));
+        betaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float newAngle = (float) animation.getAnimatedValue();
+                if (Math.abs(mBetaAngleList.get(index) - newAngle) >= 0.1f) {
+                    mBetaAngleList.set(index, newAngle);
+                    if (index == (ARC_COUNT - 1)) invalidate();
+                }
+            }
+        });
+    }
+
+    private void initHyperloopAnimators(int i, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
+        alphaAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        betaAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        final int index = i;
+
+        final float randomAlpha = 360.f;
+        alphaAnimator.setFloatValues(sINITIAL_ALPHA[mAnimationType],
+                randomAlpha - sINITIAL_ALPHA[mAnimationType],
+                randomAlpha * 2.f - sINITIAL_ALPHA[mAnimationType],
+                randomAlpha * 3.f - sINITIAL_ALPHA[mAnimationType],
+                randomAlpha * 4.f - sINITIAL_ALPHA[mAnimationType]);
+        final float alphaDecelerateFactor = 1.f - 0.1f * ( (float) (i + 1) * (i + 1) );
+        alphaAnimator.setInterpolator(new AccelerateInterpolator(alphaDecelerateFactor));
+        alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float newAngle = (float) animation.getAnimatedValue();
+                if (Math.abs(mAlphaAngleList.get(index) - newAngle) >= 0.5f) {
+                    mAlphaAngleList.set(index, newAngle);
+                    if (index == (ARC_COUNT - 1)) invalidate();
+                }
+            }
+        });
+
+        betaAnimator.setFloatValues(sINITIAL_BETA[mAnimationType], sPEAK_BETA[mAnimationType], sINITIAL_BETA[mAnimationType]);
+        final float betaDecelerateFactor = 1.f - 0.1f * ( (float) (i + 1) * (i + 1) );
+        final float hyperloop = 1.f + 0.01f * ( (float) (i + 1) * (i + 1) );
+        betaAnimator.setInterpolator(new AccelerateInterpolator(betaDecelerateFactor));
+        betaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float newAngle = (float) animation.getAnimatedValue();
+                if (Math.abs(mBetaAngleList.get(index) - newAngle) >= 0.1f) {
+                    mBetaAngleList.set(index, newAngle * hyperloop);
+                    if (index == (ARC_COUNT - 1)) invalidate();
+                }
+            }
+        });
+    }
+
+    private void initWhirpoolAnimators(int i, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
+        final int index = i;
+        final float randomAlpha = 360.f;
+        alphaAnimator.setFloatValues(sINITIAL_ALPHA[mAnimationType],
+                randomAlpha + sINITIAL_ALPHA[mAnimationType],
+                randomAlpha * 2.f + sINITIAL_ALPHA[mAnimationType],
+                randomAlpha * 3.f + sINITIAL_ALPHA[mAnimationType],
+                randomAlpha * 4.f + sINITIAL_ALPHA[mAnimationType],
+                randomAlpha * 5.f + sINITIAL_ALPHA[mAnimationType],
+                randomAlpha * 6.f + sINITIAL_ALPHA[mAnimationType]);
+        final float alphaDecelerateFactor = 1.f + 0.1f * (i + 1);
+        alphaAnimator.setInterpolator(new DecelerateInterpolator(alphaDecelerateFactor));
+        alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float newAngle = (float) animation.getAnimatedValue();
+                if (Math.abs(mAlphaAngleList.get(index) - newAngle) >= 0.5f) {
+                    mAlphaAngleList.set(index, newAngle);
+                    if (index == (ARC_COUNT - 1)) invalidate();
+                }
+            }
+        });
+
+        betaAnimator.setFloatValues(sINITIAL_BETA[mAnimationType], sPEAK_BETA[mAnimationType], sINITIAL_BETA[mAnimationType]);
+        final float betaDecelerateFactor = 1.f - 0.05f * (i + 1);
+        betaAnimator.setInterpolator(new DecelerateInterpolator(betaDecelerateFactor));
+        betaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float newAngle = (float) animation.getAnimatedValue();
+                if (Math.abs(mBetaAngleList.get(index) - newAngle) >= 0.1f) {
+                    mBetaAngleList.set(index, newAngle);
+                    if (index == (ARC_COUNT - 1)) invalidate();
+                }
+            }
+        });
+    }
+
+    private void initMetronome12Animators(int i, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
+        alphaAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        betaAnimator.setRepeatMode(ValueAnimator.REVERSE);
+
+        final int index = i;
+        final float alphaDecelerateFactor = 1.f + 0.1f * ( index * index );
+
+        if (mAnimationType == AnimationType.METRONOME_1) {
+            alphaAnimator.setFloatValues(-0.f, 0.f);
+            alphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        } else if (mAnimationType == AnimationType.METRONOME_2) {
+            final float randomAlpha = 5.f;
+            alphaAnimator.setFloatValues(-randomAlpha, randomAlpha, -randomAlpha);
+            alphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        }
+        alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float newAngle = (float) animation.getAnimatedValue();
+                if (Math.abs(mAlphaAngleList.get(index) - newAngle) >= 1.f) {
+                    mAlphaAngleList.set(index, newAngle);
+                    if (index == (ARC_COUNT - 1)) invalidate();
+                }
+            }
+        });
+
+        betaAnimator.setFloatValues(sPEAK_BETA[mAnimationType], -sPEAK_BETA[mAnimationType]);
+        final float betaDecelerateFactor = 1.f + 0.05f * ( index * index );
+        betaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        betaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float newAngle = (float) animation.getAnimatedValue();
+                if (Math.abs(mBetaAngleList.get(index) - newAngle) >= 0.5f) {
+                    mBetaAngleList.set(index, newAngle);
+                    if (index == (ARC_COUNT - 1)) invalidate();
+                }
+            }
+        });
+    }
+
+    private void initMetronome34Animators(int i, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
+        alphaAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        betaAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        final int index = i;
+        final float alphaDecelerateFactor = 1.f + 0.05f * ( index * index );
+
+        if (mAnimationType == AnimationType.METRONOME_3) {
+            final float slownessDegree = 10.f;
+            alphaAnimator.setFloatValues(slownessDegree, sINITIAL_BETA[mAnimationType], slownessDegree, sINITIAL_BETA[mAnimationType], slownessDegree);
+            alphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        } else if (mAnimationType == AnimationType.METRONOME_4) {
             final float slownessDegree = 20.f;
             alphaAnimator.setFloatValues(sINITIAL_BETA[mAnimationType], slownessDegree, sINITIAL_BETA[mAnimationType]);
-            alphaAnimator.setInterpolator(new AccelerateInterpolator(alphaDecelerateFactor));
-            alphaAnimator.setDuration(sANIMATION_DURATION[mAnimationType]);
-            alphaAnimator.setStartDelay(ANIMATION_START_DELAY);
-            alphaAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            alphaAnimator.setRepeatMode(ValueAnimator.REVERSE);
-            alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    final float newAngle = (float) animation.getAnimatedValue();
-                    mAlphaAngleList.set(index, newAngle);
-                    if (index == (ARC_COUNT - 1)) invalidate();
-                }
-            });
-
-            final ValueAnimator betaAnimator = new ValueAnimator();
-            betaAnimator.setFloatValues(sPEAK_BETA[mAnimationType], -sPEAK_BETA[mAnimationType]);
-            betaAnimator.setDuration(sANIMATION_DURATION[mAnimationType]);
-            betaAnimator.setRepeatMode(ValueAnimator.REVERSE);
-            betaAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            final float betaDecelerateFactor = 1.f + 0.05f * ( index * index );
-            betaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-            betaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    final float newAngle = (float) animation.getAnimatedValue();
-                    mBetaAngleList.set(index, newAngle);
-
-                    // redraw only once at the end of for loop
-                    if (index == (ARC_COUNT - 1)) invalidate();
-                }
-            });
-
-            mAlphaValueAnimatorList.add(alphaAnimator);
-            mBetaValueAnimatorList.add(betaAnimator);
+            alphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         }
+        alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float newAngle = (float) animation.getAnimatedValue();
+                mAlphaAngleList.set(index, newAngle);
+                if (index == (ARC_COUNT - 1)) invalidate();
+            }
+        });
+
+        betaAnimator.setFloatValues(sPEAK_BETA[mAnimationType], -sPEAK_BETA[mAnimationType]);
+        final float betaDecelerateFactor = 1.f + 0.05f * ( index * index );
+        betaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        betaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float newAngle = (float) animation.getAnimatedValue();
+                mBetaAngleList.set(index, newAngle);
+
+                // redraw only once at the end of for loop
+                if (index == (ARC_COUNT - 1)) invalidate();
+            }
+        });
     }
 
-    private void initRainbowAnimators() {
-        for (int i = 0; i < ARC_COUNT; ++ i) {
-            final int index = i;
-            final int reversedIndex = ARC_COUNT - index - 1;
-            final float alphaDecelerateFactor = 1.f + 0.1f * ( index * index );
+    private void initButterflyKnifeAnimators(int i, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
+        alphaAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        betaAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        final int index = i;
+        final float alphaDecelerateFactor = 1.f + 0.05f * ( index * index );
 
-            final ValueAnimator alphaAnimator = new ValueAnimator();
-            final float slownessDegree = 180.f;
-            alphaAnimator.setFloatValues(sINITIAL_BETA[mAnimationType], slownessDegree);
-            alphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-            alphaAnimator.setDuration(sANIMATION_DURATION[mAnimationType]);
-            alphaAnimator.setStartDelay(ANIMATION_START_DELAY);
-            alphaAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            alphaAnimator.setRepeatMode(ValueAnimator.REVERSE);
-            alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    final float newAngle = (float) animation.getAnimatedValue();
-                    mAlphaAngleList.set(index, newAngle);
-                    if (index == (ARC_COUNT - 1)) invalidate();
-                }
-            });
+        final float slownessDegree = 20.f;
+        alphaAnimator.setFloatValues(sINITIAL_BETA[mAnimationType], slownessDegree, sINITIAL_BETA[mAnimationType]);
+        alphaAnimator.setInterpolator(new AccelerateInterpolator(alphaDecelerateFactor));
+        alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float newAngle = (float) animation.getAnimatedValue();
+                mAlphaAngleList.set(index, newAngle);
+                if (index == (ARC_COUNT - 1)) invalidate();
+            }
+        });
 
-            final ValueAnimator betaAnimator = new ValueAnimator();
-            betaAnimator.setFloatValues(0.f, sPEAK_BETA[mAnimationType]);
-            betaAnimator.setDuration(sANIMATION_DURATION[mAnimationType]);
-            betaAnimator.setRepeatMode(ValueAnimator.RESTART);
-            betaAnimator.setRepeatCount(ValueAnimator.INFINITE);
-            final float betaDecelerateFactor = 1.f + 0.05f * ( index * index );
-            betaAnimator.setInterpolator(new LinearInterpolator());
-            betaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    final float newAngle = (float) animation.getAnimatedValue();
-                    mBetaAngleList.set(index, newAngle);
+        betaAnimator.setFloatValues(sPEAK_BETA[mAnimationType], -sPEAK_BETA[mAnimationType]);
+        final float betaDecelerateFactor = 1.f + 0.05f * ( index * index );
+        betaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        betaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float newAngle = (float) animation.getAnimatedValue();
+                mBetaAngleList.set(index, newAngle);
 
-                    // redraw only once at the end of for loop
-                    if (index == (ARC_COUNT - 1)) invalidate();
-                }
-            });
+                // redraw only once at the end of for loop
+                if (index == (ARC_COUNT - 1)) invalidate();
+            }
+        });
+    }
 
-            mAlphaValueAnimatorList.add(alphaAnimator);
-            mBetaValueAnimatorList.add(betaAnimator);
+    private void initRainbowOrGotchaAnimators(int i, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
+        alphaAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        final int index = i;
+        final float slownessDegree;
+        if (mAnimationType == AnimationType.GOTCHA) {
+            slownessDegree = 360.f;
+        } else {
+            slownessDegree = 180.f;
         }
+        alphaAnimator.setFloatValues(sINITIAL_BETA[mAnimationType], slownessDegree);
+        alphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float newAngle = (float) animation.getAnimatedValue();
+                mAlphaAngleList.set(index, newAngle);
+                if (index == (ARC_COUNT - 1)) invalidate();
+            }
+        });
+
+        betaAnimator.setFloatValues(0.f, sPEAK_BETA[mAnimationType]);
+        betaAnimator.setInterpolator(new LinearInterpolator());
+        betaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float newAngle = (float) animation.getAnimatedValue();
+                mBetaAngleList.set(index, newAngle);
+
+                // redraw only once at the end of for loop
+                if (index == (ARC_COUNT - 1)) invalidate();
+            }
+        });
     }
 
 }

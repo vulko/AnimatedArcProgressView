@@ -12,5 +12,6 @@
         <item>AnimationType.METRONOME_4</item>
         <item>AnimationType.BUTTERFLY_KNIFE</item>
         <item>AnimationType.RAINBOW</item>
+        <item>AnimationType.GOTCHA</item>
     </string-array>
 </resources>
