@@ -10,5 +10,7 @@
         <item>AnimationType.METRONOME_2</item>
         <item>AnimationType.METRONOME_3</item>
         <item>AnimationType.METRONOME_4</item>
+        <item>AnimationType.BUTTERFLY_KNIFE</item>
+        <item>AnimationType.RAINBOW</item>
     </string-array>
 </resources>
