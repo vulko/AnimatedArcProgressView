@@ -7,8 +7,7 @@ import android.widget.AdapterView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 
-import com.kvolkov.animatedprogressviews.AnimatedProgressView;
-import com.kvolkov.animatedprogressviews.demo.R;
+import com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,12 +21,12 @@ public class MainActivity extends AppCompatActivity {
         final SeekBar arcNumSeekBar = (SeekBar) findViewById(R.id.arcCountBar);
         final SeekBar arcStrokeWidthSeekBar = (SeekBar) findViewById(R.id.arcStrokeWidthBar);
         final SeekBar arcPaddingSeekBar = (SeekBar) findViewById(R.id.arcPaddingBar);
-        final AnimatedProgressView progressView = (AnimatedProgressView) findViewById(R.id.progress);
+        final AnimatedArcIndefiniteProgressView progressView = (AnimatedArcIndefiniteProgressView) findViewById(R.id.progress);
 
         animationTypeSelector.setOnItemSelectedListener(new Spinner.OnItemSelectedListener(){
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                progressView.setAnimationType(position - 1); // -1 magic, because of test stub for opacity animation, or special effects
+                progressView.setProgressAnimationType(position - 1); // -1 magic, because of test stub for opacity animation, or special effects
             }
 
             @Override
@@ -89,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (progress > 0)
-                    progressView.setArcPadding(1.f + (float) progress / 10.f);
+                    progressView.setArcSpacing(1.f + (float) progress / 10.f);
             }
 
             @Override

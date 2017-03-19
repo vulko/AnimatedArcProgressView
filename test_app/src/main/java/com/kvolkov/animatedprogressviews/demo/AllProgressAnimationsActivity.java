@@ -7,39 +7,44 @@ import android.widget.AdapterView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 
-import com.kvolkov.animatedprogressviews.AnimatedProgressView;
-import com.kvolkov.animatedprogressviews.demo.R;
+import com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AllProgressAnimationsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_all_animations);
 
-        final Spinner animationTypeSelector = (Spinner) findViewById(R.id.animationTypeSelector);
         final Spinner opacityAnimationTypeSelector = (Spinner) findViewById(R.id.opacityAnimationTypeSelector);
         final SeekBar arcNumSeekBar = (SeekBar) findViewById(R.id.arcCountBar);
         final SeekBar arcStrokeWidthSeekBar = (SeekBar) findViewById(R.id.arcStrokeWidthBar);
         final SeekBar arcPaddingSeekBar = (SeekBar) findViewById(R.id.arcPaddingBar);
-        final AnimatedProgressView progressView = (AnimatedProgressView) findViewById(R.id.progress);
 
-        animationTypeSelector.setOnItemSelectedListener(new Spinner.OnItemSelectedListener(){
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                progressView.setAnimationType(position - 1); // -1 magic, because of test stub for opacity animation, or special effects
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
+        final List<AnimatedArcIndefiniteProgressView> progressViews = new ArrayList<>();
+        progressViews.add((AnimatedArcIndefiniteProgressView) findViewById(R.id.progress0));
+        progressViews.add((AnimatedArcIndefiniteProgressView) findViewById(R.id.progress1));
+        progressViews.add((AnimatedArcIndefiniteProgressView) findViewById(R.id.progress2));
+        progressViews.add((AnimatedArcIndefiniteProgressView) findViewById(R.id.progress3));
+        progressViews.add((AnimatedArcIndefiniteProgressView) findViewById(R.id.progress4));
+        progressViews.add((AnimatedArcIndefiniteProgressView) findViewById(R.id.progress5));
+        progressViews.add((AnimatedArcIndefiniteProgressView) findViewById(R.id.progress6));
+        progressViews.add((AnimatedArcIndefiniteProgressView) findViewById(R.id.progress7));
+        progressViews.add((AnimatedArcIndefiniteProgressView) findViewById(R.id.progress8));
+        progressViews.add((AnimatedArcIndefiniteProgressView) findViewById(R.id.progress9));
+        progressViews.add((AnimatedArcIndefiniteProgressView) findViewById(R.id.progress10));
+        progressViews.add((AnimatedArcIndefiniteProgressView) findViewById(R.id.progress11));
+        progressViews.add((AnimatedArcIndefiniteProgressView) findViewById(R.id.progress12));
 
         opacityAnimationTypeSelector.setOnItemSelectedListener(new Spinner.OnItemSelectedListener(){
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                progressView.setOpacityAnimationType(position);
+                for (AnimatedArcIndefiniteProgressView progressView : progressViews) {
+                    progressView.setOpacityAnimationType(position);
+                }
             }
 
             @Override
@@ -51,8 +56,10 @@ public class AllProgressAnimationsActivity extends AppCompatActivity {
         arcNumSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (progress > 0)
-                    progressView.setArcCount(progress);
+                for (AnimatedArcIndefiniteProgressView progressView : progressViews) {
+                    if (progress > 0)
+                        progressView.setArcCount(progress);
+                }
             }
 
             @Override
@@ -69,9 +76,11 @@ public class AllProgressAnimationsActivity extends AppCompatActivity {
         arcStrokeWidthSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (progress > 0)
-                    // normalize it here, though values supported might be up to 500, for better usability of test app
-                    progressView.setArcStrokeWidth((float) progress / 100.f);
+                for (AnimatedArcIndefiniteProgressView progressView : progressViews) {
+                    if (progress > 0)
+                        // normalize it here, though values supported might be up to 500, for better usability of test app
+                        progressView.setArcStrokeWidth((float) progress / 100.f);
+                }
             }
 
             @Override
@@ -88,8 +97,10 @@ public class AllProgressAnimationsActivity extends AppCompatActivity {
         arcPaddingSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (progress > 0)
-                    progressView.setArcPadding(1.f + (float) progress / 10.f);
+                for (AnimatedArcIndefiniteProgressView progressView : progressViews) {
+                    if (progress > 0)
+                        progressView.setArcSpacing(1.f + (float) progress / 10.f);
+                }
             }
 
             @Override

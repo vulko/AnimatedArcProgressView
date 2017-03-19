@@ -4,16 +4,287 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context="com.kvolkov.animatedprogressviews.demo.MainActivity">
-
-    <com.kvolkov.animatedprogressviews.AnimatedProgressView
-        android:layout_weight="1.0"
-        android:id="@+id/progress"
-        android:layout_gravity="center"
+    tools:context="com.kvolkov.animatedprogressviews.demo.AllProgressAnimationsActivity">
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:minHeight="300dp"
-        android:layout_margin="50dp"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
+        <LinearLayout
+            android:layout_marginTop="5dp"
+            android:padding="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_weight="1.0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:text="Type of animation that adds a special effect to the whole view."/>
+
+            <Spinner
+                android:layout_weight="1.0"
+                android:id="@+id/opacityAnimationTypeSelector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/opacityAnimationTypes"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginTop="5dp"
+            android:padding="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_weight="1.0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:text="Number of arcs"/>
+
+            <SeekBar
+                android:layout_weight="1.0"
+                android:id="@+id/arcCountBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="30"
+                android:entries="@array/opacityAnimationTypes"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginTop="5dp"
+            android:padding="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_weight="1.0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:text="Arc stroke width"/>
+
+            <SeekBar
+                android:layout_weight="1.0"
+                android:id="@+id/arcStrokeWidthBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="5000"
+                android:entries="@array/opacityAnimationTypes"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginTop="5dp"
+            android:padding="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_weight="1.0"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:text="Padding between arcs"/>
+
+            <SeekBar
+                android:layout_weight="1.0"
+                android:id="@+id/arcPaddingBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="1000"
+                android:entries="@array/opacityAnimationTypes"/>
+        </LinearLayout>
+
+        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+            android:layout_weight="1.0"
+            android:id="@+id/progress0"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:minHeight="300dp"
+            android:layout_margin="50dp"
+            app:defaultColor="@color/colorAccent"
+            app:arcCount="10"
+            app:arcSpacing="10.0"
+            app:arcStrokeWidth="20.0"
+            app:progressAnimation="ProgressAnimationType.RACE_CONDITION"/>
+
+        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+            android:layout_weight="1.0"
+            android:id="@+id/progress1"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:minHeight="300dp"
+            android:layout_margin="50dp"
+            app:defaultColor="@color/colorAccent"
+            app:arcCount="10"
+            app:arcSpacing="10.0"
+            app:arcStrokeWidth="20.0"
+            app:progressAnimation="ProgressAnimationType.SWIRLY"/>
+
+        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+            android:layout_weight="1.0"
+            android:id="@+id/progress2"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:minHeight="300dp"
+            android:layout_margin="50dp"
+            app:defaultColor="@color/colorAccent"
+            app:arcCount="10"
+            app:arcSpacing="10.0"
+            app:arcStrokeWidth="20.0"
+            app:progressAnimation="ProgressAnimationType.WHIRPOOL"/>
+
+        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+            android:layout_weight="1.0"
+            android:id="@+id/progress3"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:minHeight="300dp"
+            android:layout_margin="50dp"
+            app:defaultColor="@color/colorAccent"
+            app:arcCount="10"
+            app:arcSpacing="10.0"
+            app:arcStrokeWidth="20.0"
+            app:progressAnimation="ProgressAnimationType.SWIRLY"/>
+
+        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+            android:layout_weight="1.0"
+            android:id="@+id/progress4"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:minHeight="300dp"
+            android:layout_margin="50dp"
+            app:defaultColor="@color/colorAccent"
+            app:arcCount="10"
+            app:arcSpacing="10.0"
+            app:arcStrokeWidth="20.0"
+            app:progressAnimation="ProgressAnimationType.HYPERLOOP"/>
+
+        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+            android:layout_weight="1.0"
+            android:id="@+id/progress5"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:minHeight="300dp"
+            android:layout_margin="50dp"
+            app:defaultColor="@color/colorAccent"
+            app:arcCount="10"
+            app:arcSpacing="10.0"
+            app:arcStrokeWidth="20.0"
+            app:progressAnimation="ProgressAnimationType.METRONOME_1"/>
+
+        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+            android:layout_weight="1.0"
+            android:id="@+id/progress6"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:minHeight="300dp"
+            android:layout_margin="50dp"
+            app:defaultColor="@color/colorAccent"
+            app:arcCount="10"
+            app:arcSpacing="10.0"
+            app:arcStrokeWidth="20.0"
+            app:progressAnimation="ProgressAnimationType.METRONOME_2"/>
+
+        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+            android:layout_weight="1.0"
+            android:id="@+id/progress7"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:minHeight="300dp"
+            android:layout_margin="50dp"
+            app:defaultColor="@color/colorAccent"
+            app:arcCount="10"
+            app:arcSpacing="10.0"
+            app:arcStrokeWidth="20.0"
+            app:progressAnimation="ProgressAnimationType.METRONOME_3"/>
+
+        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+            android:layout_weight="1.0"
+            android:id="@+id/progress8"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:minHeight="300dp"
+            android:layout_margin="50dp"
+            app:defaultColor="@color/colorAccent"
+            app:arcCount="10"
+            app:arcSpacing="10.0"
+            app:arcStrokeWidth="20.0"
+            app:progressAnimation="ProgressAnimationType.METRONOME_4"/>
+
+        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+            android:layout_weight="1.0"
+            android:id="@+id/progress9"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:minHeight="300dp"
+            android:layout_margin="50dp"
+            app:defaultColor="@color/colorAccent"
+            app:arcCount="10"
+            app:arcSpacing="10.0"
+            app:arcStrokeWidth="20.0"
+            app:progressAnimation="ProgressAnimationType.BUTTERFLY_KNIFE"/>
+
+
+        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+            android:layout_weight="1.0"
+            android:id="@+id/progress10"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:minHeight="300dp"
+            android:layout_margin="50dp"
+            app:defaultColor="@color/colorAccent"
+            app:arcCount="10"
+            app:arcSpacing="10.0"
+            app:arcStrokeWidth="20.0"
+            app:progressAnimation="ProgressAnimationType.RAINBOW"/>
+
+        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+            android:layout_weight="1.0"
+            android:id="@+id/progress11"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:minHeight="300dp"
+            android:layout_margin="50dp"
+            app:defaultColor="@color/colorAccent"
+            app:arcCount="10"
+            app:arcSpacing="10.0"
+            app:arcStrokeWidth="20.0"
+            app:progressAnimation="ProgressAnimationType.GOTCHA"/>
+
+        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+            android:layout_weight="1.0"
+            android:id="@+id/progress12"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:minHeight="300dp"
+            android:layout_margin="50dp"
+            app:defaultColor="@color/colorAccent"
+            app:arcCount="10"
+            app:arcSpacing="10.0"
+            app:arcStrokeWidth="20.0"
+            app:progressAnimation="ProgressAnimationType.OPACITY_ANIMATION_TEST_STUB"/>
+
+    </LinearLayout>
 </ScrollView>

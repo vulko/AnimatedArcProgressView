@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -27,21 +28,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This is an animated progress view.
+ * This is an animated arc progress view for displaying indefinite progress animation.
  *
  * @author Kirill Volkov (https://github.com/vulko).
  *         Copyright (C). All rights reserved.
  */
-public class AnimatedProgressView extends View {
+public class AnimatedArcIndefiniteProgressView extends View {
 
     /**
      * Drawing consts.
      */
-    protected static final long ANIMATION_START_DELAY = 0;
+    private static final long ANIMATION_START_DELAY = 0;
+    private static final int DEFAULT_ARC_COUNT = 5;
+    private static final float DEFAULT_ARC_SPACING = 5;
+    private static final float DEFAULT_ARC_STROKE_WIDTH = 5;
+    private static final int DEFAULT_ARC_COLOR = Color.argb(255, 0, 0, 200);;
 
     /**
      * Opacity animation types.
      */
+// TODO: can't import annotation    @Retention(RetentionPolicy.SOURCE)
     @IntDef({OpacityAnimationType.NONE,
             OpacityAnimationType.BLINKING,
             OpacityAnimationType.SHINY,
@@ -73,6 +79,7 @@ public class AnimatedProgressView extends View {
     /**
      * Progress animation types.
      */
+// TODO: can't import annotation    @Retention(RetentionPolicy.SOURCE)
     @IntDef({ProgressAnimationType.RACE_CONDITION,
             ProgressAnimationType.SWIRLY,
             ProgressAnimationType.WHIRPOOL,
@@ -173,17 +180,17 @@ public class AnimatedProgressView extends View {
     protected @ProgressAnimationType
     int mProgressAnimationType = ProgressAnimationType.RACE_CONDITION;
 
-    protected @AnimatedProgressView.OpacityAnimationType
+    protected @AnimatedArcIndefiniteProgressView.OpacityAnimationType
     int mOpacityAnimationType = OpacityAnimationType.NONE;
 
     @IntRange(from = 1, to = 30)
-    protected int mArcCount = 5;
+    protected int mArcCount;
     @FloatRange(from = 0.f, to = 100.f)
-    protected float mArcPadding = 10.f;
+    protected float mArcSpacing = DEFAULT_ARC_SPACING;
     @FloatRange(from = 0.f, to = 500.f)
-    protected float mArcStwokeWidth = 30.f;
+    protected float mArcStwokeWidth = DEFAULT_ARC_STROKE_WIDTH;
     @ColorInt
-    protected int mPrimaryColor = Color.argb(255, 0, 0, 200);
+    protected int mPrimaryColor = DEFAULT_ARC_COLOR;
 
     protected Paint mArcPaint;
     protected List<Integer> mColorList = new ArrayList<>();
@@ -199,6 +206,7 @@ public class AnimatedProgressView extends View {
     /**
      * Self updating mechanism.
      */
+    private boolean mInitialized = false;
     private Handler mHandler = new Handler();
     private Runnable mUpdateRunnable = new Runnable() {
         @Override
@@ -208,28 +216,45 @@ public class AnimatedProgressView extends View {
         }
     };
 
-    public AnimatedProgressView(Context context) {
+    public AnimatedArcIndefiniteProgressView(Context context) {
         super(context);
-        initView();
+        initView(null);
     }
 
-    public AnimatedProgressView(Context context, @Nullable AttributeSet attrs) {
+    public AnimatedArcIndefiniteProgressView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        initView();
+        initView(attrs);
     }
 
-    public AnimatedProgressView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public AnimatedArcIndefiniteProgressView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initView();
+        initView(attrs);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public AnimatedProgressView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public AnimatedArcIndefiniteProgressView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        initView();
+        initView(attrs);
     }
 
-    protected void initView() {
+    protected void initView(@Nullable AttributeSet attrs) {
+        if (attrs != null) {
+            TypedArray a = getContext().getTheme().obtainStyledAttributes(
+                    attrs,
+                    R.styleable.AnimatedArcIndefiniteProgressView,
+                    0, 0);
+
+            try {
+                setArcCount(a.getInteger(R.styleable.AnimatedArcIndefiniteProgressView_arcCount, DEFAULT_ARC_COUNT));
+                setArcSpacing(a.getFloat(R.styleable.AnimatedArcIndefiniteProgressView_arcSpacing, DEFAULT_ARC_SPACING));
+                setArcStrokeWidth(a.getFloat(R.styleable.AnimatedArcIndefiniteProgressView_arcStrokeWidth, DEFAULT_ARC_STROKE_WIDTH));
+                setPrimaryColor(a.getColor(R.styleable.AnimatedArcIndefiniteProgressView_defaultColor, DEFAULT_ARC_COLOR));
+                setProgressAnimationType(a.getInteger(R.styleable.AnimatedArcIndefiniteProgressView_progressAnimation, mProgressAnimationType));
+            } finally {
+                a.recycle();
+            }
+        }
+
         if (mArcPaint == null) {
             mArcPaint = new Paint();
         }
@@ -239,6 +264,7 @@ public class AnimatedProgressView extends View {
         mArcPaint.setStrokeWidth(mArcStwokeWidth);
         mArcPaint.setAntiAlias(true);
 
+        mInitialized = true;
     }
 
     protected void initColorList(@ColorInt int color) {
@@ -451,14 +477,20 @@ public class AnimatedProgressView extends View {
         initColorList(color);
     }
 
-    public void setAnimationType(@ProgressAnimationType int animationType) {
+    public void setProgressAnimationType(@ProgressAnimationType int animationType) {
         mProgressAnimationType = animationType;
-        restart();
+
+        if (mInitialized) {
+            restart();
+        }
     }
 
     public void setOpacityAnimationType(@OpacityAnimationType int animationType) {
         mOpacityAnimationType = animationType;
-        restart();
+
+        if (mInitialized) {
+            restart();
+        }
     }
 
     public void setArcCount(@IntRange(from = 1, to = 30) int arcs) {
@@ -468,20 +500,25 @@ public class AnimatedProgressView extends View {
 
         mArcCount = arcs;
 
-        restart();
-        // remeasure
-        requestLayout();
+        if (mInitialized) {
+            restart();
+            // remeasure
+            requestLayout();
+        }
     }
 
-    public void setArcPadding(@FloatRange(from = 0.f, to = 100.f) float padding) {
-        if (padding < 0.f || padding > 100.f) {
+    public void setArcSpacing(@FloatRange(from = 0.f, to = 100.f) float spacing) {
+        if (spacing < 0.f || spacing > 100.f) {
             throw new IllegalArgumentException("Should be in range [0.f .. 100.f]");
         }
 
-        mArcPadding = padding;
-        restart();
-        // remeasure
-        requestLayout();
+        mArcSpacing = spacing;
+
+        if (mInitialized) {
+            restart();
+            // remeasure
+            requestLayout();
+        }
     }
 
     public void setArcStrokeWidth(@FloatRange(from = 0.f, to = 500.f) float width) {
@@ -490,9 +527,18 @@ public class AnimatedProgressView extends View {
         }
 
         mArcStwokeWidth = width;
+
+        if (mInitialized) {
+            restart();
+            // remeasure
+            requestLayout();
+        }
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
         restart();
-        // remeasure
-        requestLayout();
     }
 
     @Override
@@ -507,12 +553,12 @@ public class AnimatedProgressView extends View {
         final int prefferedDimension = Math.min(widthSize, heightSize);
         // preffered stroke width to match drawing exactly with the number of arcs and specified padding
         final int arcs = mArcCount + 1; // + 1 since no need to see circle in the middle
-        final float leftSpace = prefferedDimension - mArcPadding * arcs;
+        final float leftSpace = prefferedDimension - mArcSpacing * arcs;
         final float prefferedStrokeWidth;
         if (leftSpace >= 0.f) {
             prefferedStrokeWidth = leftSpace / arcs;
         } else {
-            prefferedStrokeWidth = mArcPadding;
+            prefferedStrokeWidth = mArcSpacing;
         }
 
         final boolean isWider = widthSize >= heightSize;
@@ -524,7 +570,7 @@ public class AnimatedProgressView extends View {
 
         // Init rects for arcs
         mArcRectList.clear();
-        final float arcRadiusDiff = mArcPadding * 2.f;
+        final float arcRadiusDiff = mArcSpacing * 2.f;
         final float initialLeft = isWider ? sideDiff : 0.f,
                     initialTop = isWider ? 0.f : sideDiff,
                     initialRight = widthSize - (isWider ? sideDiff : 0.f),
@@ -594,6 +640,7 @@ public class AnimatedProgressView extends View {
         // TODO: manage mem stub
         stopAnimation();
         stopOpacityAnimation();
+        mInitialized = false;
     }
 
     /**
