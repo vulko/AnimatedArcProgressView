@@ -3,18 +3,17 @@ package com.kvolkov.animatedprogressviews;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.Build;
+import android.os.Handler;
 import android.support.annotation.ColorInt;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
@@ -23,9 +22,6 @@ import android.view.animation.LinearInterpolator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This is an animated progress view.
@@ -75,10 +71,12 @@ public class AnimatedProgressView extends View {
 
     @IntDef({OpacityAnimationType.NONE,
             OpacityAnimationType.BLINKING,
+            OpacityAnimationType.SHINY,
     })
     public @interface OpacityAnimationType {
         int NONE = 0;
         int BLINKING = 1;
+        int SHINY = 2;
     }
 
     /**
@@ -95,7 +93,7 @@ public class AnimatedProgressView extends View {
             1000,
             1000,
             1000,
-            1000,
+            3000,
     };
 
     /**
@@ -166,8 +164,7 @@ public class AnimatedProgressView extends View {
     protected List<ValueAnimator> mBetaValueAnimatorList = new ArrayList<>();
     protected List<ValueAnimator> mOpacityValueAnimatorList = new ArrayList<>();
 
-    protected Timer mTimer = null;
-    protected TimerTask mTimerTask;
+    protected Handler mHandler = new Handler();
 
     public AnimatedProgressView(Context context) {
         super(context);
@@ -205,11 +202,15 @@ public class AnimatedProgressView extends View {
         mArcPaint.setAntiAlias(true);
 
         // TODO: dirty init colors.
-        mColorList.add(Color.argb(255, 200, 0, 0));
-        mColorList.add(Color.argb(255, 0, 200, 0));
-        mColorList.add(Color.argb(255, 200, 0, 0));
-        mColorList.add(Color.argb(255, 0, 200, 0));
-        mColorList.add(Color.argb(255, 200, 0, 0));
+        mColorList.add(Color.argb(255, 0, 0, 200));
+        mColorList.add(Color.argb(255, 0, 0, 200));
+        mColorList.add(Color.argb(255, 0, 0, 200));
+        mColorList.add(Color.argb(255, 0, 0, 200));
+        mColorList.add(Color.argb(255, 0, 0, 200));
+//        mColorList.add(Color.argb(255, 0, 200, 0));
+//        mColorList.add(Color.argb(255, 200, 0, 0));
+//        mColorList.add(Color.argb(255, 0, 200, 0));
+//        mColorList.add(Color.argb(255, 200, 0, 0));
     }
 
     protected void initProgressValueAnimators() {
@@ -296,6 +297,10 @@ public class AnimatedProgressView extends View {
                     case OpacityAnimationType.BLINKING:
                         initBlinkingAnimators(i, opacityAnimator);
                         break;
+
+                    case OpacityAnimationType.SHINY:
+                        initShinyAnimators(i, opacityAnimator);
+                        break;
                 }
 
                 mOpacityValueAnimatorList.add(opacityAnimator);
@@ -351,37 +356,22 @@ public class AnimatedProgressView extends View {
             mBetaValueAnimatorList.get(i).start();
         }
 
-        if (mTimerTask == null) {
-            mTimerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    ((Activity)getContext()).runOnUiThread(new Runnable() {
-                        private long currentMillis = 0;
-                        @Override
-                        public void run() {
-                            final long elapsed = System.currentTimeMillis() - currentMillis;
-                            Log.e(">", "elapsed since lance invalidate " + TimeUnit.MILLISECONDS.toMicros(elapsed) + " ms");
-                            currentMillis = System.currentTimeMillis();
-                            invalidate();
-                        }
-                    });
-                }
-            };
-
-            if (mTimer == null) {
-                mTimer = new Timer();
-            }
-            mTimer.schedule(mTimerTask, 40);
-        }
+        mHandler.postDelayed(mUpdateRunnable, 16);
     }
 
-    public void stopAnimation() {
-        if (mTimerTask != null) {
-            mTimerTask.cancel();
-            mTimerTask = null;
+    // TODO REmove
+    private Runnable mUpdateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mHandler.postDelayed(mUpdateRunnable, 16);
+            invalidate();
         }
-        if (mTimer != null) {
-            mTimer.purge();
+    };
+    // TODO REmove
+
+    public void stopAnimation() {
+        if (mHandler != null) {
+            mHandler.removeCallbacks(mUpdateRunnable);
         }
 
         Animator animator;
@@ -486,30 +476,22 @@ public class AnimatedProgressView extends View {
         super.onDetachedFromWindow();
 
         // TODO: manage mem stub
-        if (mAlphaValueAnimatorList != null) {
-            for (int i = 0; i < mAlphaValueAnimatorList.size(); ++i) {
-                ValueAnimator animator = mAlphaValueAnimatorList.get(i);
-                if (animator != null) {
-                    animator.cancel();
-                }
-            }
-            mAlphaValueAnimatorList = null;
-        }
+        stopAnimation();
+        stopOpacityAnimation();
     }
 
     /**
      * Progress Animation helper functions.
      */
-    private void initRaceConditionAnimators(int i, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
-        final int index = i;
-        final float factor = 0.05f * (i + 1);
+    private void initRaceConditionAnimators(final int index, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
+        final float factor = 0.05f * (index + 1);
 
         final float randomAlpha = 360.f;
         alphaAnimator.setFloatValues(sINITIAL_ALPHA[mProgressAnimationType],
                 randomAlpha + sINITIAL_ALPHA[mProgressAnimationType],
                 randomAlpha * 2.f + sINITIAL_ALPHA[mProgressAnimationType],
                 randomAlpha * 3.f + sINITIAL_ALPHA[mProgressAnimationType]);
-        final float alphaDecelerateFactor = (i % 2 == 0) ? 1.f + factor : 1.f - factor;
+        final float alphaDecelerateFactor = (index % 2 == 0) ? 1.f + factor : 1.f - factor;
         alphaAnimator.setInterpolator(new DecelerateInterpolator(alphaDecelerateFactor));
         alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -517,13 +499,12 @@ public class AnimatedProgressView extends View {
                 final float newAngle = (float) animation.getAnimatedValue();
                 if (Math.abs(mAlphaAngleList.get(index) - newAngle) >= 0.5f) {
                     mAlphaAngleList.set(index, newAngle);
-                    if (index == (ARC_COUNT - 1)) invalidate();
                 }
             }
         });
 
         betaAnimator.setFloatValues(sINITIAL_BETA[mProgressAnimationType], sPEAK_BETA[mProgressAnimationType], sINITIAL_BETA[mProgressAnimationType]);
-        final float betaDecelerateFactor = (i % 2 == 0) ? 1.f + factor : 1.f - factor;
+        final float betaDecelerateFactor = (index % 2 == 0) ? 1.f + factor : 1.f - factor;
         betaAnimator.setInterpolator(new DecelerateInterpolator(betaDecelerateFactor));
         betaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -531,17 +512,15 @@ public class AnimatedProgressView extends View {
                 final float newAngle = (float) animation.getAnimatedValue();
                 if (Math.abs(mBetaAngleList.get(index) - newAngle) >= 0.1f) {
                     mBetaAngleList.set(index, newAngle);
-                    if (index == (ARC_COUNT - 1)) invalidate();
                 }
             }
         });
     }
 
-    private void initSwirlyAnimators(int i, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
+    private void initSwirlyAnimators(final int index, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
         alphaAnimator.setRepeatMode(ValueAnimator.REVERSE);
         betaAnimator.setRepeatMode(ValueAnimator.REVERSE);
 
-        final int index = i;
         final float randomAlpha = 360.f;
         alphaAnimator.setFloatValues(sINITIAL_ALPHA[mProgressAnimationType],
                 randomAlpha + sINITIAL_ALPHA[mProgressAnimationType],
@@ -556,7 +535,6 @@ public class AnimatedProgressView extends View {
                 final float newAngle = (float) animation.getAnimatedValue();
                 if (Math.abs(mAlphaAngleList.get(index) - newAngle) >= 1.f) {
                     mAlphaAngleList.set(index, newAngle);
-                    if (index == (ARC_COUNT - 1)) invalidate();
                 }
             }
         });
@@ -570,16 +548,14 @@ public class AnimatedProgressView extends View {
                 final float newAngle = (float) animation.getAnimatedValue();
                 if (Math.abs(mBetaAngleList.get(index) - newAngle) >= 0.1f) {
                     mBetaAngleList.set(index, newAngle);
-                    if (index == (ARC_COUNT - 1)) invalidate();
                 }
             }
         });
     }
 
-    private void initHyperloopAnimators(int i, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
+    private void initHyperloopAnimators(final int index, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
         alphaAnimator.setRepeatMode(ValueAnimator.REVERSE);
         betaAnimator.setRepeatMode(ValueAnimator.REVERSE);
-        final int index = i;
 
         final float randomAlpha = 360.f;
         alphaAnimator.setFloatValues(sINITIAL_ALPHA[mProgressAnimationType],
@@ -587,37 +563,34 @@ public class AnimatedProgressView extends View {
                 randomAlpha * 2.f - sINITIAL_ALPHA[mProgressAnimationType],
                 randomAlpha * 3.f - sINITIAL_ALPHA[mProgressAnimationType],
                 randomAlpha * 4.f - sINITIAL_ALPHA[mProgressAnimationType]);
-        final float alphaDecelerateFactor = 1.f - 0.1f * ( (float) (i + 1) * (i + 1) );
-        alphaAnimator.setInterpolator(new AccelerateInterpolator(alphaDecelerateFactor));
+        final float alphaAccelerateFactor = 1.f - 0.1f * ( (float) (index + 1) * (index + 1) );
+        alphaAnimator.setInterpolator(new AccelerateInterpolator(alphaAccelerateFactor));
         alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 final float newAngle = (float) animation.getAnimatedValue();
                 if (Math.abs(mAlphaAngleList.get(index) - newAngle) >= 0.5f) {
                     mAlphaAngleList.set(index, newAngle);
-                    if (index == (ARC_COUNT - 1)) invalidate();
                 }
             }
         });
 
         betaAnimator.setFloatValues(sINITIAL_BETA[mProgressAnimationType], sPEAK_BETA[mProgressAnimationType], sINITIAL_BETA[mProgressAnimationType]);
-        final float betaDecelerateFactor = 1.f - 0.1f * ( (float) (i + 1) * (i + 1) );
-        final float hyperloop = 1.f + 0.01f * ( (float) (i + 1) * (i + 1) );
-        betaAnimator.setInterpolator(new AccelerateInterpolator(betaDecelerateFactor));
+        final float betaAccelerateFactor = 1.f - 0.1f * ( (float) (index + 1) * (index + 1) );
+        final float hyperloop = 1.f + 0.01f * ( (float) (index + 1) * (index + 1) );
+        betaAnimator.setInterpolator(new AccelerateInterpolator(betaAccelerateFactor));
         betaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 final float newAngle = (float) animation.getAnimatedValue();
                 if (Math.abs(mBetaAngleList.get(index) - newAngle) >= 0.1f) {
                     mBetaAngleList.set(index, newAngle * hyperloop);
-                    if (index == (ARC_COUNT - 1)) invalidate();
                 }
             }
         });
     }
 
-    private void initWhirpoolAnimators(int i, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
-        final int index = i;
+    private void initWhirpoolAnimators(final int index, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
         final float randomAlpha = 360.f;
         alphaAnimator.setFloatValues(sINITIAL_ALPHA[mProgressAnimationType],
                 randomAlpha + sINITIAL_ALPHA[mProgressAnimationType],
@@ -626,7 +599,7 @@ public class AnimatedProgressView extends View {
                 randomAlpha * 4.f + sINITIAL_ALPHA[mProgressAnimationType],
                 randomAlpha * 5.f + sINITIAL_ALPHA[mProgressAnimationType],
                 randomAlpha * 6.f + sINITIAL_ALPHA[mProgressAnimationType]);
-        final float alphaDecelerateFactor = 1.f + 0.1f * (i + 1);
+        final float alphaDecelerateFactor = 1.f + 0.1f * (index + 1);
         alphaAnimator.setInterpolator(new DecelerateInterpolator(alphaDecelerateFactor));
         alphaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -634,13 +607,12 @@ public class AnimatedProgressView extends View {
                 final float newAngle = (float) animation.getAnimatedValue();
                 if (Math.abs(mAlphaAngleList.get(index) - newAngle) >= 0.5f) {
                     mAlphaAngleList.set(index, newAngle);
-                    if (index == (ARC_COUNT - 1)) invalidate();
                 }
             }
         });
 
         betaAnimator.setFloatValues(sINITIAL_BETA[mProgressAnimationType], sPEAK_BETA[mProgressAnimationType], sINITIAL_BETA[mProgressAnimationType]);
-        final float betaDecelerateFactor = 1.f - 0.05f * (i + 1);
+        final float betaDecelerateFactor = 1.f - 0.05f * (index + 1);
         betaAnimator.setInterpolator(new DecelerateInterpolator(betaDecelerateFactor));
         betaAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -648,17 +620,15 @@ public class AnimatedProgressView extends View {
                 final float newAngle = (float) animation.getAnimatedValue();
                 if (Math.abs(mBetaAngleList.get(index) - newAngle) >= 0.1f) {
                     mBetaAngleList.set(index, newAngle);
-                    if (index == (ARC_COUNT - 1)) invalidate();
                 }
             }
         });
     }
 
-    private void initMetronome12Animators(int i, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
+    private void initMetronome12Animators(final int index, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
         alphaAnimator.setRepeatMode(ValueAnimator.REVERSE);
         betaAnimator.setRepeatMode(ValueAnimator.REVERSE);
 
-        final int index = i;
         final float alphaDecelerateFactor = 1.f + 0.1f * ( index * index );
 
         if (mProgressAnimationType == ProgressAnimationType.METRONOME_1) {
@@ -675,7 +645,6 @@ public class AnimatedProgressView extends View {
                 final float newAngle = (float) animation.getAnimatedValue();
                 if (Math.abs(mAlphaAngleList.get(index) - newAngle) >= 1.f) {
                     mAlphaAngleList.set(index, newAngle);
-                    if (index == (ARC_COUNT - 1)) invalidate();
                 }
             }
         });
@@ -689,16 +658,14 @@ public class AnimatedProgressView extends View {
                 final float newAngle = (float) animation.getAnimatedValue();
                 if (Math.abs(mBetaAngleList.get(index) - newAngle) >= 0.5f) {
                     mBetaAngleList.set(index, newAngle);
-                    if (index == (ARC_COUNT - 1)) invalidate();
                 }
             }
         });
     }
 
-    private void initMetronome34Animators(int i, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
+    private void initMetronome34Animators(final int index, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
         alphaAnimator.setRepeatMode(ValueAnimator.REVERSE);
         betaAnimator.setRepeatMode(ValueAnimator.REVERSE);
-        final int index = i;
         final float alphaDecelerateFactor = 1.f + 0.05f * ( index * index );
 
         if (mProgressAnimationType == ProgressAnimationType.METRONOME_3) {
@@ -715,7 +682,6 @@ public class AnimatedProgressView extends View {
             public void onAnimationUpdate(ValueAnimator animation) {
                 final float newAngle = (float) animation.getAnimatedValue();
                 mAlphaAngleList.set(index, newAngle);
-                if (index == (ARC_COUNT - 1)) invalidate();
             }
         });
 
@@ -729,15 +695,13 @@ public class AnimatedProgressView extends View {
                 mBetaAngleList.set(index, newAngle);
 
                 // redraw only once at the end of for loop
-                if (index == (ARC_COUNT - 1)) invalidate();
             }
         });
     }
 
-    private void initButterflyKnifeAnimators(int i, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
+    private void initButterflyKnifeAnimators(final int index, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
         alphaAnimator.setRepeatMode(ValueAnimator.REVERSE);
         betaAnimator.setRepeatMode(ValueAnimator.REVERSE);
-        final int index = i;
         final float alphaDecelerateFactor = 1.f + 0.05f * ( index * index );
 
         final float slownessDegree = 20.f;
@@ -748,7 +712,6 @@ public class AnimatedProgressView extends View {
             public void onAnimationUpdate(ValueAnimator animation) {
                 final float newAngle = (float) animation.getAnimatedValue();
                 mAlphaAngleList.set(index, newAngle);
-                if (index == (ARC_COUNT - 1)) invalidate();
             }
         });
 
@@ -762,14 +725,12 @@ public class AnimatedProgressView extends View {
                 mBetaAngleList.set(index, newAngle);
 
                 // redraw only once at the end of for loop
-                if (index == (ARC_COUNT - 1)) invalidate();
             }
         });
     }
 
-    private void initRainbowOrGotchaAnimators(int i, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
+    private void initRainbowOrGotchaAnimators(final int index, ValueAnimator alphaAnimator, ValueAnimator betaAnimator) {
         alphaAnimator.setRepeatMode(ValueAnimator.REVERSE);
-        final int index = i;
         final float slownessDegree;
         if (mProgressAnimationType == ProgressAnimationType.GOTCHA) {
             slownessDegree = 360.f;
@@ -783,7 +744,6 @@ public class AnimatedProgressView extends View {
             public void onAnimationUpdate(ValueAnimator animation) {
                 final float newAngle = (float) animation.getAnimatedValue();
                 mAlphaAngleList.set(index, newAngle);
-                if (index == (ARC_COUNT - 1)) invalidate();
             }
         });
 
@@ -796,15 +756,13 @@ public class AnimatedProgressView extends View {
                 mBetaAngleList.set(index, newAngle);
 
                 // redraw only once at the end of for loop
-                if (index == (ARC_COUNT - 1)) invalidate();
             }
         });
     }
 
-    private void initBlinkingAnimators(int i, ValueAnimator opacityAnimator) {
+    private void initBlinkingAnimators(final int index, ValueAnimator opacityAnimator) {
         opacityAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         opacityAnimator.setIntValues(INITIAL_OPACITY, TARGET_OPACITY, INITIAL_OPACITY);
-        final int index = i;
         opacityAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -813,4 +771,19 @@ public class AnimatedProgressView extends View {
             }
         });
     }
+
+    private void initShinyAnimators(final int index, ValueAnimator opacityAnimator) {
+        opacityAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        final float opacityDecelerateFactor = 1.f + 0.8f * (index + 1);
+        opacityAnimator.setInterpolator(new DecelerateInterpolator(opacityDecelerateFactor));
+        opacityAnimator.setIntValues(255, 50, 255);
+        opacityAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final int opacity = (int) animation.getAnimatedValue();
+                mAlphaOpacityList.set(index, opacity);
+            }
+        });
+    }
+
 }

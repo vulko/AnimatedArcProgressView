@@ -19,6 +19,7 @@
     <string-array name="opacityAnimationTypes">
         <item>OpacityAnimationType.NONE</item>
         <item>OpacityAnimationType.BLINKING</item>
+        <item>OpacityAnimationType.SHINY</item>
     </string-array>
 
 </resources>
