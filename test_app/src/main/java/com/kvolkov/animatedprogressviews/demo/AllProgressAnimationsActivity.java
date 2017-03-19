@@ -1,4 +1,4 @@
-package com.kvolkov.animatedprogressviews;
+package com.kvolkov.animatedprogressviews.demo;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -7,7 +7,10 @@ import android.widget.AdapterView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 
-public class MainActivity extends AppCompatActivity {
+import com.kvolkov.animatedprogressviews.AnimatedProgressView;
+import com.kvolkov.animatedprogressviews.demo.R;
+
+public class AllProgressAnimationsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
