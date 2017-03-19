@@ -14,6 +14,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This is an animated progress view.
@@ -33,10 +35,22 @@ import java.util.TimerTask;
  */
 public class AnimatedProgressView extends View {
 
-    @IntDef({ AnimationType.RACE_CONDITION,
-              AnimationType.SWIRLY,
-              AnimationType.WHIRPOOL,
-              AnimationType.HYPERLOOP,
+    /**
+     * Drawing consts.
+     */
+    protected static final int ARC_COUNT = 5;
+    protected static final long ANIMATION_START_DELAY = 0;
+
+    /**
+     * Opacity animation consts.
+     */
+    protected static int INITIAL_OPACITY = 255;
+    protected static long OPACITY_ANIMATION_DURATION = 3000;
+
+    @IntDef({AnimationType.RACE_CONDITION,
+            AnimationType.SWIRLY,
+            AnimationType.WHIRPOOL,
+            AnimationType.HYPERLOOP,
             AnimationType.METRONOME_1,
             AnimationType.METRONOME_2,
             AnimationType.METRONOME_3,
@@ -127,22 +141,19 @@ public class AnimatedProgressView extends View {
             270.f,
     };
 
-    /**
-     * Drawing consts.
-     */
-    protected static final int ARC_COUNT = 5;
-    protected static final long ANIMATION_START_DELAY = 0;
-
     protected @AnimationType
     int mAnimationType = AnimationType.RACE_CONDITION;
 
     protected Paint mArcPaint;
     protected List<Integer> mColorList = new ArrayList<>();
+    protected List<Integer> mAlphaOpacityList = new ArrayList<>();
     protected List<RectF> mArcRectList = new ArrayList<>();
     protected List<Float> mAlphaAngleList = new ArrayList<>();
     protected List<Float> mBetaAngleList = new ArrayList<>();
+
     protected List<ValueAnimator> mAlphaValueAnimatorList = new ArrayList<>();
     protected List<ValueAnimator> mBetaValueAnimatorList = new ArrayList<>();
+    protected List<ValueAnimator> mOpacityValueAnimatorList = new ArrayList<>();
 
     protected Timer mTimer = null;
     protected TimerTask mTimerTask;
@@ -182,8 +193,6 @@ public class AnimatedProgressView extends View {
         mArcPaint.setStrokeWidth(30);
         mArcPaint.setAntiAlias(true);
 
-        initAnimators();
-
         // TODO: dirty init colors.
         mColorList.add(Color.argb(255, 200, 0, 0));
         mColorList.add(Color.argb(255, 0, 200, 0));
@@ -192,7 +201,7 @@ public class AnimatedProgressView extends View {
         mColorList.add(Color.argb(255, 200, 0, 0));
     }
 
-    protected void initAnimators() {
+    protected void initProgressValueAnimators() {
         mAlphaAngleList.clear();
         mBetaAngleList.clear();
         for (int i = 0; i < ARC_COUNT; ++i) {
@@ -256,6 +265,40 @@ public class AnimatedProgressView extends View {
         }
     }
 
+    protected void initOpacityAnimators() {
+        mAlphaOpacityList.clear();
+        for (int i = 0; i < ARC_COUNT; ++i) {
+            mAlphaOpacityList.add(INITIAL_OPACITY);
+        }
+
+        for (int i = 0; i < ARC_COUNT; ++ i) {
+            final ValueAnimator opacityAnimator = new ValueAnimator();
+
+            opacityAnimator.setDuration(sANIMATION_DURATION[mAnimationType]);
+            opacityAnimator.setStartDelay(ANIMATION_START_DELAY);
+            opacityAnimator.setRepeatCount(ValueAnimator.INFINITE);
+            opacityAnimator.setRepeatMode(ValueAnimator.REVERSE);
+
+            opacityAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+            opacityAnimator.setIntValues(INITIAL_OPACITY, 50, INITIAL_OPACITY);
+            final int index = i;
+            opacityAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    final int opacity = (int) animation.getAnimatedValue();
+                    mAlphaOpacityList.set(index, opacity);
+                }
+            });
+
+            switch (mAnimationType) {
+                case AnimationType.RACE_CONDITION:
+                    break;
+            }
+
+            mOpacityValueAnimatorList.add(opacityAnimator);
+        }
+    }
+
     /**
      * Add color to color list.
      *
@@ -271,9 +314,31 @@ public class AnimatedProgressView extends View {
         }
     }
 
-    public void startAnimation() {
+    public void startOpacityAnimation() {
+        stopOpacityAnimation();
+        initOpacityAnimators();
+
+        for (int i = 0; i < mOpacityValueAnimatorList.size(); ++i) {
+            mOpacityValueAnimatorList.get(i).start();
+        }
+    }
+
+    public void stopOpacityAnimation() {
+        ValueAnimator animator;
+        if (mOpacityValueAnimatorList != null) {
+            for (int i = 0; i < mOpacityValueAnimatorList.size(); ++i) {
+                animator = mOpacityValueAnimatorList.get(i);
+                if (animator != null) {
+                    animator.cancel();
+                }
+            }
+            mOpacityValueAnimatorList.clear();
+        }
+    }
+
+    public void startProgressAnimation() {
         stopAnimation();
-        initAnimators();
+        initProgressValueAnimators();
 
         for (int i = 0; i < mAlphaValueAnimatorList.size(); ++i) {
             mAlphaValueAnimatorList.get(i).start();
@@ -287,8 +352,12 @@ public class AnimatedProgressView extends View {
                 @Override
                 public void run() {
                     ((Activity)getContext()).runOnUiThread(new Runnable() {
+                        private long currentMillis = 0;
                         @Override
                         public void run() {
+                            final long elapsed = System.currentTimeMillis() - currentMillis;
+                            Log.e(">", "elapsed since lance invalidate " + TimeUnit.MILLISECONDS.toMicros(elapsed) + " ms");
+                            currentMillis = System.currentTimeMillis();
                             invalidate();
                         }
                     });
@@ -335,8 +404,8 @@ public class AnimatedProgressView extends View {
     public void setAnimationType(@AnimationType int animationType) {
         mAnimationType = animationType;
 
-        // TODO: cancel old ones first
-        startAnimation();
+        startProgressAnimation();
+        startOpacityAnimation();
     }
 
     @Override
@@ -365,6 +434,7 @@ public class AnimatedProgressView extends View {
             canvas.save();
 
             mArcPaint.setColor(mColorList.get(i));
+            mArcPaint.setAlpha(mAlphaOpacityList.get(i));
             switch (mAnimationType) {
                 case AnimationType.RACE_CONDITION:
                     canvas.drawArc(mArcRectList.get(i), mAlphaAngleList.get(i), mBetaAngleList.get(i), false, mArcPaint);
