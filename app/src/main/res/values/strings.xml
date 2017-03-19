@@ -17,8 +17,8 @@
     </string-array>
 
     <string-array name="opacityAnimationTypes">
-        <item>AnimationType.RACE_CONDITION</item>
-        <item>AnimationType.SWIRLY</item>
+        <item>OpacityAnimationType.NONE</item>
+        <item>OpacityAnimationType.BLINKING</item>
     </string-array>
 
 </resources>
