@@ -18,6 +18,14 @@
         android:id="@+id/animationTypeSelector"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="20dp"
         android:entries="@array/animationTypes"/>
+
+    <Spinner
+        android:id="@+id/opacityAnimationTypeSelector"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:entries="@array/opacityAnimationTypes"/>
 
 </LinearLayout>

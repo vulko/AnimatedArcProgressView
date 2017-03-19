@@ -1,4 +1,5 @@
 <resources>
+
     <string name="app_name">AnimatedArcProgressView</string>
 
     <string-array name="animationTypes">
@@ -14,4 +15,10 @@
         <item>AnimationType.RAINBOW</item>
         <item>AnimationType.GOTCHA</item>
     </string-array>
+
+    <string-array name="opacityAnimationTypes">
+        <item>AnimationType.RACE_CONDITION</item>
+        <item>AnimationType.SWIRLY</item>
+    </string-array>
+
 </resources>
