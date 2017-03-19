@@ -17,6 +17,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AnticipateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 
@@ -38,11 +39,39 @@ public class AnimatedProgressView extends View {
     protected static final long ANIMATION_START_DELAY = 0;
 
     /**
+     * Opacity animation types.
+     */
+    @IntDef({OpacityAnimationType.NONE,
+            OpacityAnimationType.BLINKING,
+            OpacityAnimationType.SHINY,
+            OpacityAnimationType.AURA,
+    })
+    public @interface OpacityAnimationType {
+        int NONE = 0;
+        int BLINKING = 1;
+        int SHINY = 2;
+        int AURA = 3;
+    }
+
+    /**
+     * Animation durations in [ms] for opacity animation types. See {@link OpacityAnimationType}.
+     */
+    protected static long sOpacityAnimationDuration[] = {
+            0,
+            2000,
+            1000,
+            1000,
+    };
+
+    /**
      * Opacity animation consts.
      */
     protected static int INITIAL_OPACITY = 255;
     protected static int TARGET_OPACITY = 50;
 
+    /**
+     * Progress animation types.
+     */
     @IntDef({ProgressAnimationType.RACE_CONDITION,
             ProgressAnimationType.SWIRLY,
             ProgressAnimationType.WHIRPOOL,
@@ -54,8 +83,11 @@ public class AnimatedProgressView extends View {
             ProgressAnimationType.BUTTERFLY_KNIFE,
             ProgressAnimationType.RAINBOW,
             ProgressAnimationType.GOTCHA,
+
+            ProgressAnimationType.OPACITY_ANIMATION_TEST_STUB,
     })
     public @interface ProgressAnimationType {
+        int OPACITY_ANIMATION_TEST_STUB = -1;
         int RACE_CONDITION = 0;
         int SWIRLY = 1;
         int WHIRPOOL = 2;
@@ -67,16 +99,6 @@ public class AnimatedProgressView extends View {
         int BUTTERFLY_KNIFE = 8;
         int RAINBOW = 9;
         int GOTCHA = 10;
-    }
-
-    @IntDef({OpacityAnimationType.NONE,
-            OpacityAnimationType.BLINKING,
-            OpacityAnimationType.SHINY,
-    })
-    public @interface OpacityAnimationType {
-        int NONE = 0;
-        int BLINKING = 1;
-        int SHINY = 2;
     }
 
     /**
@@ -154,6 +176,7 @@ public class AnimatedProgressView extends View {
     int mOpacityAnimationType = OpacityAnimationType.NONE;
 
     protected Paint mArcPaint;
+    protected float mPrefferedStrokeWidth = 40.f;
     protected List<Integer> mColorList = new ArrayList<>();
     protected List<Integer> mAlphaOpacityList = new ArrayList<>();
     protected List<RectF> mArcRectList = new ArrayList<>();
@@ -176,29 +199,24 @@ public class AnimatedProgressView extends View {
         }
     };
 
-
     public AnimatedProgressView(Context context) {
         super(context);
-
         initView();
     }
 
     public AnimatedProgressView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-
         initView();
     }
 
     public AnimatedProgressView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-
         initView();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public AnimatedProgressView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-
         initView();
     }
 
@@ -247,6 +265,7 @@ public class AnimatedProgressView extends View {
             betaAnimator.setRepeatMode(ValueAnimator.RESTART);
 
             switch (mProgressAnimationType) {
+                case ProgressAnimationType.OPACITY_ANIMATION_TEST_STUB:
                 case ProgressAnimationType.RACE_CONDITION:
                     initRaceConditionAnimators(i, alphaAnimator, betaAnimator);
                     break;
@@ -299,7 +318,7 @@ public class AnimatedProgressView extends View {
             for (int i = 0; i < ARC_COUNT; ++ i) {
                 final ValueAnimator opacityAnimator = new ValueAnimator();
 
-                opacityAnimator.setDuration(sProgressAnimationDuration[mProgressAnimationType]);
+                opacityAnimator.setDuration(sOpacityAnimationDuration[mOpacityAnimationType]);
                 opacityAnimator.setStartDelay(ANIMATION_START_DELAY);
                 opacityAnimator.setRepeatCount(ValueAnimator.INFINITE);
                 opacityAnimator.setRepeatMode(ValueAnimator.RESTART);
@@ -311,6 +330,10 @@ public class AnimatedProgressView extends View {
 
                     case OpacityAnimationType.SHINY:
                         initShinyAnimators(i, opacityAnimator);
+                        break;
+
+                    case OpacityAnimationType.AURA:
+                        initAuraAnimators(i, opacityAnimator);
                         break;
                 }
 
@@ -358,6 +381,13 @@ public class AnimatedProgressView extends View {
 
     public void startProgressAnimation() {
         stopAnimation();
+        mHandler.postDelayed(mUpdateRunnable, 16);
+
+        if (mProgressAnimationType == ProgressAnimationType.OPACITY_ANIMATION_TEST_STUB) {
+            // ignore progress for testing animation effects
+            return;
+        }
+
         initProgressValueAnimators();
 
         for (int i = 0; i < mAlphaValueAnimatorList.size(); ++i) {
@@ -366,8 +396,6 @@ public class AnimatedProgressView extends View {
         for (int i = 0; i < mBetaValueAnimatorList.size(); ++i) {
             mBetaValueAnimatorList.get(i).start();
         }
-
-        mHandler.postDelayed(mUpdateRunnable, 16);
     }
 
     public void stopAnimation() {
@@ -420,10 +448,11 @@ public class AnimatedProgressView extends View {
         setMeasuredDimension(widthSize, heightSize);
 
         final int prefferedDimension = Math.min(widthSize, heightSize);
+        mPrefferedStrokeWidth = ( (float) prefferedDimension / (2.f * (ARC_COUNT + 1)) );
 
         mArcRectList.clear();
         for (int i = 0; i < ARC_COUNT; ++i) {
-            final float factor = (i + 1) * 40.f;
+            final float factor = (i + 1) * mPrefferedStrokeWidth;
             mArcRectList.add(new RectF(0.f + factor, 0.f + factor, prefferedDimension - factor, prefferedDimension - factor));
         }
     }
@@ -465,6 +494,10 @@ public class AnimatedProgressView extends View {
                 case ProgressAnimationType.RAINBOW:
                 case ProgressAnimationType.GOTCHA:
                     canvas.drawArc(mArcRectList.get(i), sInitialAlpha[mProgressAnimationType] + mBetaAngleList.get(i), -mAlphaAngleList.get(i), false, mArcPaint);
+                    break;
+
+                case ProgressAnimationType.OPACITY_ANIMATION_TEST_STUB:
+                    canvas.drawArc(mArcRectList.get(i), 0, 360, false, mArcPaint);
                     break;
             }
 
@@ -778,6 +811,20 @@ public class AnimatedProgressView extends View {
         final float opacityDecelerateFactor = 1.f + 0.8f * (index + 1);
         opacityAnimator.setInterpolator(new DecelerateInterpolator(opacityDecelerateFactor));
         opacityAnimator.setIntValues(255, 50, 255);
+        opacityAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final int opacity = (int) animation.getAnimatedValue();
+                mAlphaOpacityList.set(index, opacity);
+            }
+        });
+    }
+
+    private void initAuraAnimators(final int index, ValueAnimator opacityAnimator) {
+        opacityAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        final float opacityDecelerateFactor = 1.f + 0.8f * (index + 1);
+        opacityAnimator.setInterpolator(new AnticipateInterpolator(opacityDecelerateFactor));
+        opacityAnimator.setIntValues(255, 50, 255, 50);
         opacityAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {

@@ -3,6 +3,7 @@
     <string name="app_name">AnimatedArcProgressView</string>
 
     <string-array name="animationTypes">
+        <item>AnimationType.OPACITY_ANIMATION_TEST_STUB</item>
         <item>AnimationType.RACE_CONDITION</item>
         <item>AnimationType.SWIRLY</item>
         <item>AnimationType.WHIRPOOL</item>
@@ -20,6 +21,7 @@
         <item>OpacityAnimationType.NONE</item>
         <item>OpacityAnimationType.BLINKING</item>
         <item>OpacityAnimationType.SHINY</item>
+        <item>OpacityAnimationType.AURA</item>
     </string-array>
 
 </resources>

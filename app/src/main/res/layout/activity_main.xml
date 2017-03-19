@@ -10,22 +10,35 @@
     <com.kvolkov.animatedprogressviews.AnimatedProgressView
         android:id="@+id/progress"
         android:layout_gravity="center"
-        android:layout_width="300dp"
+        android:layout_width="match_parent"
         android:layout_height="300dp"
+        android:minHeight="300dp"
         android:layout_margin="50dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="Type of animation for progress values affecting arc movements."/>
 
     <Spinner
         android:id="@+id/animationTypeSelector"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_margin="5dp"
         android:entries="@array/animationTypes"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="Type of animation that adds a special effect to the whole view."/>
 
     <Spinner
         android:id="@+id/opacityAnimationTypeSelector"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_margin="5dp"
         android:entries="@array/opacityAnimationTypes"/>
 
 </LinearLayout>

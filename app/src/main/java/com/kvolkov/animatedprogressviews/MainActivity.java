@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
         animationTypeSelector.setOnItemSelectedListener(new Spinner.OnItemSelectedListener(){
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                progressView.setAnimationType(position);
+                progressView.setAnimationType(position - 1); // -1 magic, because of test stub for opacity animation, or special effects
             }
 
             @Override
