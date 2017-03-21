@@ -1,1 +1,1 @@
-include ':test_app', ':library'
+include ':test_app', ':library', ':annotations'

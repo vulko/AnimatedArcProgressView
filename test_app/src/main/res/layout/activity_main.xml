@@ -1,132 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context="com.kvolkov.animatedprogressviews.demo.MainActivity">
-
-    <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
-        android:layout_weight="1.0"
-        android:id="@+id/progress"
-        android:layout_gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:minHeight="300dp"
-        android:layout_margin="50dp"/>
+    tools:context="com.kvolkov.animatedprogressviews.demo.AllProgressAnimationsActivity">
 
     <LinearLayout
-        android:layout_marginTop="5dp"
-        android:padding="5dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <TextView
-            android:layout_weight="1.0"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="marquee"
-            android:text="Type of animation for progress values affecting arc movements."/>
-
-        <Spinner
-            android:layout_weight="1.0"
-            android:id="@+id/animationTypeSelector"
+        <LinearLayout
+            android:layout_marginTop="5dp"
+            android:padding="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:entries="@array/animationTypes"/>
-    </LinearLayout>
+            android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_marginTop="5dp"
-        android:padding="5dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+            <TextView
+                android:layout_weight="0.5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:text="Type of animation for progress values affecting arc movements."/>
 
-        <TextView
-            android:layout_weight="1.0"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="marquee"
-            android:text="Type of animation that adds a special effect to the whole view."/>
+            <Spinner
+                android:layout_weight="0.5"
+                android:id="@+id/animationTypeSelector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/animationTypes"/>
+        </LinearLayout>
 
-        <Spinner
-            android:layout_weight="1.0"
-            android:id="@+id/opacityAnimationTypeSelector"
+        <LinearLayout
+            android:layout_marginTop="5dp"
+            android:padding="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:entries="@array/opacityAnimationTypes"/>
-    </LinearLayout>
+            android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_marginTop="5dp"
-        android:padding="5dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+            <TextView
+                android:layout_weight="0.5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:text="Type of animation that adds a special effect to the whole view."/>
 
-        <TextView
-            android:layout_weight="1.0"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="marquee"
-            android:text="Number of arcs"/>
+            <Spinner
+                android:layout_weight="0.5"
+                android:id="@+id/opacityAnimationTypeSelector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/opacityAnimationTypes"/>
+        </LinearLayout>
 
-        <SeekBar
-            android:layout_weight="1.0"
-            android:id="@+id/arcCountBar"
+        <LinearLayout
+            android:layout_marginTop="5dp"
+            android:padding="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:max="30"
-            android:entries="@array/opacityAnimationTypes"/>
-    </LinearLayout>
+            android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_marginTop="5dp"
-        android:padding="5dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+            <TextView
+                android:layout_weight="0.5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:text="Number of arcs"/>
 
-        <TextView
-            android:layout_weight="1.0"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="marquee"
-            android:text="Arc stroke width"/>
+            <SeekBar
+                android:layout_weight="0.5"
+                android:id="@+id/arcCountBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="30"
+                android:entries="@array/opacityAnimationTypes"/>
+        </LinearLayout>
 
-        <SeekBar
-            android:layout_weight="1.0"
-            android:id="@+id/arcStrokeWidthBar"
+        <LinearLayout
+            android:layout_marginTop="5dp"
+            android:padding="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:max="5000"
-            android:entries="@array/opacityAnimationTypes"/>
-    </LinearLayout>
+            android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_marginTop="5dp"
-        android:padding="5dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+            <TextView
+                android:layout_weight="0.5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:text="Arc stroke width"/>
 
-        <TextView
-            android:layout_weight="1.0"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="marquee"
-            android:text="Padding between arcs"/>
+            <SeekBar
+                android:layout_weight="0.5"
+                android:id="@+id/arcStrokeWidthBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="5000"
+                android:entries="@array/opacityAnimationTypes"/>
+        </LinearLayout>
 
-        <SeekBar
-            android:layout_weight="1.0"
-            android:id="@+id/arcPaddingBar"
+        <LinearLayout
+            android:layout_marginTop="5dp"
+            android:padding="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:max="1000"
-            android:entries="@array/opacityAnimationTypes"/>
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_weight="0.5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:text="Padding between arcs"/>
+
+            <SeekBar
+                android:layout_weight="0.5"
+                android:id="@+id/arcPaddingBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="1000"
+                android:entries="@array/opacityAnimationTypes"/>
+        </LinearLayout>
+
+        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+            android:layout_weight="1.0"
+            android:id="@+id/progress"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:minHeight="300dp"
+            android:layout_margin="50dp"/>
+
     </LinearLayout>
 
-</LinearLayout>
+</ScrollView>

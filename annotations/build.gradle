@@ -1,4 +1,17 @@
-apply plugin: 'com.android.library'
+//apply plugin: 'com.android.library'
+apply plugin: 'java'
+// maven
+apply plugin: 'com.github.dcendents.android-maven'
+
+group = 'com.kvolkov.animatedprogressviews'
+targetCompatibility = '1.7'
+sourceCompatibility = '1.7'
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+//    compile "com.android.support:annotations:" + rootProject.ext.supportLibraryVersion
+//    javadocDeps "com.android.support:support-annotations:$supportLibraryVersion"
+}
 
 ext {
     // deploy config
@@ -7,7 +20,7 @@ ext {
 
     libraryVersion = '1.0-RC6'
     publishedGroupId = 'com.kvolkov.animatedprogressviews'
-    artifact = 'library'
+    artifact = 'library:annotations'
     libraryName = 'AnimatedProgressViews'
     libraryDescription = 'Animated progress view library with cool animations and fancy special effects.'
 
@@ -22,55 +35,6 @@ ext {
     licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
     allLicenses = ["Apache-2.0"]
 }
-
-android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
-
-    defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
-
-//        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = ["library" : "true"]
-            }
-        }
-    }
-
-    buildTypes {
-        debug {
-            minifyEnabled false
-        }
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-}
-
-configurations {
-    javadocDeps
-}
-
-//// Jar
-//task androidJar(type: Jar) {
-//    dependsOn assemble
-//    group 'Build'
-//    description 'blah blah'
-////    from zipTree('build/intermediates/bundles/release/classes.jar')
-////    from zipTree('../annotations-processor/build/libs/processor.jar')
-//    from zipTree('../annotations/build/libs/annotations.jar')
-//}
-
-// maven
-apply plugin: 'com.github.dcendents.android-maven'
-
-group = publishedGroupId                               // Maven Group ID for the artifact
 
 install {
     repositories.mavenInstaller {
