@@ -1,11 +1,12 @@
 //apply plugin: 'com.android.library'
 apply plugin: 'java'
-// maven
-apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'maven'
 
 group = 'com.kvolkov.animatedprogressviews'
-targetCompatibility = '1.7'
-sourceCompatibility = '1.7'
+
+// This module will be used in Android projects, need to be compatible with Java 1.7
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -13,139 +14,32 @@ dependencies {
 //    javadocDeps "com.android.support:support-annotations:$supportLibraryVersion"
 }
 
-ext {
-    // deploy config
-    bintrayRepo = 'AnimatedArcProgressView'
-    bintrayName = 'animated-progress-views'
+//android {
+//    compileSdkVersion 25
+//    buildToolsVersion "25.0.2"
+//
+//    defaultConfig {
+//        minSdkVersion 16
+//        targetSdkVersion 25
+//        versionCode 1
+//        versionName "1.0"
+//
+////        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+//
+//        javaCompileOptions {
+//            annotationProcessorOptions {
+//                arguments = ["library" : "true"]
+//            }
+//        }
+//    }
+//    buildTypes {
+//        release {
+//            minifyEnabled false
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//        }
+//    }
+//}
 
-    libraryVersion = '1.0-RC6'
-    publishedGroupId = 'com.kvolkov.animatedprogressviews'
-    artifact = 'library:annotations'
-    libraryName = 'AnimatedProgressViews'
-    libraryDescription = 'Animated progress view library with cool animations and fancy special effects.'
-
-    siteUrl = 'https://github.com/vulko/AnimatedArcProgressView'
-    gitUrl = 'https://github.com/vulko/AnimatedArcProgressView.git'
-
-    developerId = 'vulko'
-    developerName = 'Kirill Volkov'
-    developerEmail = 'vulkovk@gmail.com'
-
-    licenseName = 'The Apache Software License, Version 2.0'
-    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-    allLicenses = ["Apache-2.0"]
-}
-
-install {
-    repositories.mavenInstaller {
-        // This generates POM.xml with proper parameters
-        pom {
-            project {
-                packaging 'aar'
-                groupId publishedGroupId
-                artifactId artifact
-
-                // Add your description here
-                name libraryName
-                description libraryDescription
-                url siteUrl
-
-                // Set your license
-                licenses {
-                    license {
-                        name licenseName
-                        url licenseUrl
-                    }
-                }
-                developers {
-                    developer {
-                        id developerId
-                        name developerName
-                        email developerEmail
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-
-                }
-            }
-        }
-    }
-}
-
-dependencies {
-    evaluationDependsOn(':annotations')
-    compile project(':annotations')
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile "com.android.support:appcompat-v7:$supportLibraryVersion"
-    compile "com.android.support:support-annotations:$supportLibraryVersion"
-
-    // TODO: so far moved @IntDef's to view in library, otherwise can't build jdoc's for :annotations: module.
-    javadocDeps "com.android.support:support-annotations:$supportLibraryVersion"
-//    javadocDeps "com.kvolkov.animatedprogressviews:annotations"
-//    javadocDeps "com.kvolkov.animatedprogressviews.annotations:1.0"
-}
-
-// bintray
-apply plugin: 'com.jfrog.bintray'
-
-version = libraryVersion
-
-if (project.hasProperty("android")) { // Android libraries
-    task sourcesJar(type: Jar) {
-        classifier = 'sources'
-        from android.sourceSets.main.java.srcDirs
-    }
-
-    task javadoc(type: Javadoc) {
-        source = android.sourceSets.main.java.srcDirs
-        classpath += configurations.javadocDeps
-        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    }
-} else { // Java libraries
-    task sourcesJar(type: Jar, dependsOn: classes) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-    }
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-}
-
-// Bintray
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-
-    configurations = ['archives']
-    pkg {
-        repo = bintrayRepo
-        name = bintrayName
-        desc = libraryDescription
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = allLicenses
-        publish = true
-        publicDownloadNumbers = true
-        version {
-            desc = libraryDescription
-            gpg {
-                sign = true //Determines whether to GPG sign the files. The default is false
-                passphrase = properties.getProperty("bintray.gpg.password")
-                //Optional. The passphrase for GPG signing'
-            }
-        }
-    }
-}
+//configurations {
+//    javadocDeps
+//}
