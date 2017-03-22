@@ -1,27 +1,7 @@
 apply plugin: 'com.android.library'
 
-ext {
-    // deploy config
-    bintrayRepo = 'AnimatedArcProgressView'
-    bintrayName = 'animated-progress-views'
-
-    libraryVersion = '1.0-RC6'
-    publishedGroupId = 'com.kvolkov.animatedprogressviews'
-    artifact = 'library'
-    libraryName = 'AnimatedProgressViews'
-    libraryDescription = 'Animated progress view library with cool animations and fancy special effects.'
-
-    siteUrl = 'https://github.com/vulko/AnimatedArcProgressView'
-    gitUrl = 'https://github.com/vulko/AnimatedArcProgressView.git'
-
-    developerId = 'vulko'
-    developerName = 'Kirill Volkov'
-    developerEmail = 'vulkovk@gmail.com'
-
-    licenseName = 'The Apache Software License, Version 2.0'
-    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-    allLicenses = ["Apache-2.0"]
-}
+// TODO: deploy config
+def artifact = 'library'
 
 android {
     compileSdkVersion 25
@@ -53,10 +33,6 @@ android {
     }
 }
 
-configurations {
-    javadocDeps
-}
-
 //// Jar
 //task androidJar(type: Jar) {
 //    dependsOn assemble
@@ -67,48 +43,8 @@ configurations {
 //    from zipTree('../annotations/build/libs/annotations.jar')
 //}
 
-// maven
-apply plugin: 'com.github.dcendents.android-maven'
-
-group = publishedGroupId                               // Maven Group ID for the artifact
-
-install {
-    repositories.mavenInstaller {
-        // This generates POM.xml with proper parameters
-        pom {
-            project {
-                packaging 'aar'
-                groupId publishedGroupId
-                artifactId artifact
-
-                // Add your description here
-                name libraryName
-                description libraryDescription
-                url siteUrl
-
-                // Set your license
-                licenses {
-                    license {
-                        name licenseName
-                        url licenseUrl
-                    }
-                }
-                developers {
-                    developer {
-                        id developerId
-                        name developerName
-                        email developerEmail
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-
-                }
-            }
-        }
-    }
+configurations {
+    javadocDeps
 }
 
 dependencies {
@@ -124,10 +60,37 @@ dependencies {
 //    javadocDeps "com.kvolkov.animatedprogressviews.annotations:1.0"
 }
 
-// bintray
-apply plugin: 'com.jfrog.bintray'
+//Properties properties = new Properties()
+//properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
-version = libraryVersion
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+//    classifier = 'javadoc'
+//    from javadoc.destinationDir
+//}
+//
+//task androidJar(type: Jar) {
+//    dependsOn assemble
+//    group 'Build'
+//    from android.sourceSets.main.java.srcDirs
+//    classifier = 'sources'
+//}
+//
+//if (project.plugins.hasPlugin('com.android.library')) { // Android libraries
+//    task javadoc(type: Javadoc) {
+//        source = android.sourceSets.main.java.srcDirs
+//        classpath += configurations.javadocDeps
+//        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+//    }
+//} else { // Java libraries
+////        task sourcesJar(type: Jar, dependsOn: classes) {
+////            classifier = 'sources'
+////            from sourceSets.main.allSource
+////        }
+//    task javadoc(type: Javadoc) {
+//        source = android.sourceSets.main.java.srcDirs
+//        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+//    }
+//}
 
 if (project.hasProperty("android")) { // Android libraries
     task sourcesJar(type: Jar) {
@@ -157,30 +120,65 @@ artifacts {
     archives sourcesJar
 }
 
-// Bintray
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
+apply plugin: 'com.github.dcendents.android-maven'
+
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'aar'
+                groupId rootProject.ext.publishedGroupId
+                artifactId artifact
+
+                // Add your description here
+                name rootProject.ext.libraryName
+                description rootProject.ext.libraryDescription
+                url rootProject.ext.siteUrl
+
+                // Set your license
+                licenses {
+                    license {
+                        name rootProject.ext.licenseName
+                        url rootProject.ext.licenseUrl
+                    }
+                }
+                developers {
+                    developer {
+                        id rootProject.ext.developerId
+                        name rootProject.ext.developerName
+                        email rootProject.ext.developerEmail
+                    }
+                }
+                scm {
+                    connection rootProject.ext.gitUrl
+                    developerConnection rootProject.ext.gitUrl
+                    url rootProject.ext.siteUrl
+                }
+            }
+        }
+    }
+}
+
+apply plugin: 'com.jfrog.bintray'
 
 bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-
+    user = project.hasProperty('bintray.user') ? project.property('bintray.user') : System.getenv('BINTRAY_USER')
+    key = project.hasProperty('bintray.apikey') ? project.property('bintray.apikey') : System.getenv('BINTRAY_API_KEY')
     configurations = ['archives']
     pkg {
-        repo = bintrayRepo
-        name = bintrayName
-        desc = libraryDescription
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = allLicenses
+        repo = rootProject.ext.bintrayRepo
+        name = rootProject.ext.bintrayName
+        desc = rootProject.ext.libraryDescription
+        websiteUrl = rootProject.ext.siteUrl
+        vcsUrl = rootProject.ext.gitUrl
+        licenses = rootProject.ext.allLicences
         publish = true
         publicDownloadNumbers = true
         version {
             desc = libraryDescription
             gpg {
                 sign = true //Determines whether to GPG sign the files. The default is false
-                passphrase = properties.getProperty("bintray.gpg.password")
-                //Optional. The passphrase for GPG signing'
             }
         }
     }

@@ -20,7 +20,7 @@ android {
 }
 
 dependencies {
-    evaluationDependsOn(':annotations')
+    //evaluationDependsOn(':annotations')
     evaluationDependsOn(':library')
     compile project(':library')
     compile fileTree(dir: 'libs', include: ['*.jar'])

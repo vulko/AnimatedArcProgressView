@@ -1,30 +1,54 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-
 buildscript {
     repositories {
         jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.0'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        dependencies {
+            classpath 'com.android.tools.build:gradle:2.3.0'
+//            classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+//            classpath 'com.github.dcendents:android-maven-plugin:1.2'
+        }
     }
 }
 
-allprojects {
-    repositories {
-        jcenter()
-    }
+plugins {
+    id "com.github.dcendents.android-maven" version "1.5"
+    id "com.jfrog.bintray" version "1.7.3"
 }
 
 ext {
-    // library versions
+    // VERSION OF THIS LIB
+    currentVersion = '1.0'
+    publishedGroupId = 'com.kvolkov.animatedprogressviews'
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicences = ["Apache-2.0"]
+    developerId = 'vulko'
+    developerName = 'Kirill Volkov'
+    developerEmail = 'vulkovk@gmail.com'
+    bintrayRepo = 'AnimatedArcProgressView'
+    bintrayName = 'animated-progress-views'
+    siteUrl = 'https://github.com/vulko/AnimatedArcProgressView'
+    gitUrl = 'https://github.com/vulko/AnimatedArcProgressView.git'
+    libraryName = 'AnimatedProgressViews'
+    libraryDescription = 'Animated progress view library with cool animations and fancy special effects.'
+
+    // dependencies versions
     supportLibraryVersion = '25.3.0'
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+allprojects {
+//    apply plugin: 'idea'
+//    configure(subprojects.findAll { new File(it.projectDir, 'src').directory }) {
+//        apply plugin: 'java'
+//    }
+    version = rootProject.ext.currentVersion
+    //status = 'Integration'
+}
+
+// skip publishing this project to artifactory
+//artifactoryPublish.skip = true
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.4'
 }
