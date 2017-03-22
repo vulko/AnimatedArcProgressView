@@ -45,11 +45,15 @@ configurations {
 }
 
 dependencies {
-    evaluationDependsOn(':annotations')
-    compile project(':annotations')
+//    evaluationDependsOn(':annotations')
+    //compile project(':annotations')
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile "com.android.support:appcompat-v7:$supportLibraryVersion"
-    compile "com.android.support:support-annotations:$supportLibraryVersion"
+    compile("com.android.support:appcompat-v7:$supportLibraryVersion") {
+        transitive false;
+    }
+    compile("com.android.support:support-annotations:$supportLibraryVersion") {
+        transitive false;
+    }
 
     // TODO: so far moved @IntDef's to view in library, otherwise can't build jdoc's for :annotations: module.
     javadocDeps "com.android.support:support-annotations:$supportLibraryVersion"

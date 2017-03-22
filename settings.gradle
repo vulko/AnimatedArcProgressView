@@ -1,1 +1,1 @@
-include ':test_app', ':annotations', ':library'
+include ':test_app', ':library'// skip for now, looks like annotationProcessor is needed , ':annotations'
