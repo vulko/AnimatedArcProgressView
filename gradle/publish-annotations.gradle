@@ -1,0 +1,175 @@
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.dcendents.android-maven'
+
+// artifact options
+def artifact = 'annotations'
+version = rootProject.ext.currentVersion
+group = rootProject.ext.publishedGroupId
+
+// Bintray
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+
+    configurations = ['archives']
+    pkg {
+        repo = rootProject.ext.bintrayRepo
+        name = rootProject.ext.bintrayName
+        desc = rootProject.ext.libraryDescription
+        websiteUrl = rootProject.ext.siteUrl
+//        issueTrackerUrl = POM_ISSUE_URL
+        vcsUrl = rootProject.ext.gitUrl
+        licenses = ["Apache-2.0"]
+        publish = true
+        publicDownloadNumbers = true
+        version {
+            desc = rootProject.ext.libraryDescription
+            gpg {
+                sign = true //Determines whether to GPG sign the files. The default is false
+                passphrase = properties.getProperty("bintray.gpg.password")
+                //Optional. The passphrase for GPG signing'
+            }
+
+//            mavenCentralSync {
+//                sync = true
+//                user = properties.getProperty("bintray.oss.user")
+//                password = properties.getProperty("bintray.oss.password")
+//                close = '1'
+//            }
+        }
+    }
+}
+
+if (project.getPlugins().hasPlugin('com.android.application') ||
+        project.getPlugins().hasPlugin('com.android.library')) {
+    project.configurations {
+        javadocDeps
+    }
+    // ANDROID APPS AND LIBS
+    install {
+        repositories.mavenInstaller {
+            configuration = configurations.archives
+
+            pom {
+                project {
+                    groupId rootProject.ext.publishedGroupId
+                    artifactId artifact
+                    version = rootProject.ext.currentVersion
+
+                    name rootProject.ext.libraryName
+                    packaging 'aar'
+                    description rootProject.ext.libraryDescription
+                    url rootProject.ext.siteUrl
+
+                    scm {
+                        url rootProject.ext.siteUrl
+                        connection rootProject.ext.gitUrl
+                        developerConnection rootProject.ext.gitUrl
+                    }
+
+                    licenses {
+                        license {
+                            name rootProject.ext.licenseName
+                            url rootProject.ext.licenseUrl
+                            distribution 'repo'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id rootProject.ext.developerId
+                            name rootProject.ext.developerName
+                            email rootProject.ext.developerEmail
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    task androidJavadocs(type: Javadoc) {
+        source = android.sourceSets.main.java.source
+        classpath += configurations.javadocDeps
+        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    }
+
+    task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
+        classifier = 'javadoc'
+        from androidJavadocs.destinationDir
+    }
+
+    task androidSourcesJar(type: Jar) {
+        classifier = 'sources'
+        from android.sourceSets.main.java.source
+    }
+} else {
+    // JAVA LIBRARIES
+    install {
+        repositories.mavenInstaller {
+            pom.groupId rootProject.ext.publishedGroupId
+            pom.artifactId artifact
+            pom.version = rootProject.ext.currentVersion
+
+            pom.project {
+                name rootProject.ext.libraryName
+                packaging 'jar'
+                description rootProject.ext.libraryDescription
+                url rootProject.ext.siteUrl
+
+                scm {
+                    url rootProject.ext.siteUrl
+                    connection rootProject.ext.gitUrl
+                    developerConnection rootProject.ext.gitUrl
+                }
+
+                licenses {
+                    license {
+                        name rootProject.ext.licenseName
+                        url rootProject.ext.licenseUrl
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id rootProject.ext.developerId
+                        name rootProject.ext.developerName
+                        email rootProject.ext.developerEmail
+                    }
+                }
+            }
+        }
+    }
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+}
+
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
+}
+
+artifacts {
+    if (project.getPlugins().hasPlugin('com.android.application') ||
+            project.getPlugins().hasPlugin('com.android.library')) {
+        archives androidSourcesJar
+        archives androidJavadocsJar
+    } else {
+        archives sourcesJar
+        archives javadocJar
+    }
+}
