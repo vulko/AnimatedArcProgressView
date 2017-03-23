@@ -64,12 +64,22 @@ You can download an **aar** here: https://dl.bintray.com/vulko/AnimatedArcProgre
 
 Or use Gradle:
 ```gradle
+// MAIN GRADLE FILE
 repositories {
     jcenter()
 }
 
 dependencies {
     classpath ('com.kvolkov.animatedprogressviews:library:1.0') {
+        // this in case you already have these import's in your project, otherwise skip it
+        exclude group: 'com.android.support', module: 'appcompat-v7'
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
+}
+
+// MODULE GRADLE FILE
+dependencies {
+    compile ('com.kvolkov.animatedprogressviews:library:1.0') {
         // this in case you already have these import's in your project, otherwise skip it
         exclude group: 'com.android.support', module: 'appcompat-v7'
         exclude group: 'com.android.support', module: 'support-annotations'
