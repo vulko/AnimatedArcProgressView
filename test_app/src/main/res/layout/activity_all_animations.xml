@@ -103,7 +103,7 @@
                 android:entries="@array/opacityAnimationTypes"/>
         </LinearLayout>
 
-        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+        <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
             android:id="@+id/progress0"
             android:layout_gravity="center"
@@ -117,7 +117,7 @@
             app:arcStrokeWidth="30.0"
             app:progressAnimation="ProgressAnimationType.RACE_CONDITION"/>
 
-        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+        <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
             android:id="@+id/progress1"
             android:layout_gravity="center"
@@ -131,7 +131,7 @@
             app:arcStrokeWidth="30.0"
             app:progressAnimation="ProgressAnimationType.SWIRLY"/>
 
-        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+        <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
             android:id="@+id/progress2"
             android:layout_gravity="center"
@@ -145,7 +145,7 @@
             app:arcStrokeWidth="30.0"
             app:progressAnimation="ProgressAnimationType.WHIRPOOL"/>
 
-        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+        <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
             android:id="@+id/progress3"
             android:layout_gravity="center"
@@ -159,7 +159,7 @@
             app:arcStrokeWidth="30.0"
             app:progressAnimation="ProgressAnimationType.SWIRLY"/>
 
-        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+        <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
             android:id="@+id/progress4"
             android:layout_gravity="center"
@@ -173,7 +173,7 @@
             app:arcStrokeWidth="30.0"
             app:progressAnimation="ProgressAnimationType.HYPERLOOP"/>
 
-        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+        <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
             android:id="@+id/progress5"
             android:layout_gravity="center"
@@ -187,7 +187,7 @@
             app:arcStrokeWidth="30.0"
             app:progressAnimation="ProgressAnimationType.METRONOME_1"/>
 
-        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+        <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
             android:id="@+id/progress6"
             android:layout_gravity="center"
@@ -201,7 +201,7 @@
             app:arcStrokeWidth="30.0"
             app:progressAnimation="ProgressAnimationType.METRONOME_2"/>
 
-        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+        <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
             android:id="@+id/progress7"
             android:layout_gravity="center"
@@ -215,7 +215,7 @@
             app:arcStrokeWidth="30.0"
             app:progressAnimation="ProgressAnimationType.METRONOME_3"/>
 
-        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+        <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
             android:id="@+id/progress8"
             android:layout_gravity="center"
@@ -229,7 +229,7 @@
             app:arcStrokeWidth="30.0"
             app:progressAnimation="ProgressAnimationType.METRONOME_4"/>
 
-        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+        <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
             android:id="@+id/progress9"
             android:layout_gravity="center"
@@ -244,7 +244,7 @@
             app:progressAnimation="ProgressAnimationType.BUTTERFLY_KNIFE"/>
 
 
-        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+        <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
             android:id="@+id/progress10"
             android:layout_gravity="center"
@@ -258,7 +258,7 @@
             app:arcStrokeWidth="30.0"
             app:progressAnimation="ProgressAnimationType.RAINBOW"/>
 
-        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+        <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
             android:id="@+id/progress11"
             android:layout_gravity="center"
@@ -272,7 +272,7 @@
             app:arcStrokeWidth="30.0"
             app:progressAnimation="ProgressAnimationType.GOTCHA"/>
 
-        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+        <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
             android:id="@+id/progress12"
             android:layout_gravity="center"

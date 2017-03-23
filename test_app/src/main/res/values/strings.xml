@@ -3,25 +3,25 @@
     <string name="app_name">AnimatedArcProgressView</string>
 
     <string-array name="animationTypes">
-        <item>AnimationType.OPACITY_ANIMATION_TEST_STUB</item>
-        <item>AnimationType.RACE_CONDITION</item>
-        <item>AnimationType.SWIRLY</item>
-        <item>AnimationType.WHIRPOOL</item>
-        <item>AnimationType.HYPERLOOP</item>
-        <item>AnimationType.METRONOME_1</item>
-        <item>AnimationType.METRONOME_2</item>
-        <item>AnimationType.METRONOME_3</item>
-        <item>AnimationType.METRONOME_4</item>
-        <item>AnimationType.BUTTERFLY_KNIFE</item>
-        <item>AnimationType.RAINBOW</item>
-        <item>AnimationType.GOTCHA</item>
+        <item>OPACITY_ANIMATION_TEST_STUB</item>
+        <item>RACE_CONDITION</item>
+        <item>SWIRLY</item>
+        <item>WHIRPOOL</item>
+        <item>HYPERLOOP</item>
+        <item>METRONOME_1</item>
+        <item>METRONOME_2</item>
+        <item>METRONOME_3</item>
+        <item>METRONOME_4</item>
+        <item>BUTTERFLY_KNIFE</item>
+        <item>RAINBOW</item>
+        <item>GOTCHA</item>
     </string-array>
 
     <string-array name="opacityAnimationTypes">
-        <item>OpacityAnimationType.NONE</item>
-        <item>OpacityAnimationType.BLINKING</item>
-        <item>OpacityAnimationType.SHINY</item>
-        <item>OpacityAnimationType.AURA</item>
+        <item>NONE</item>
+        <item>BLINKING</item>
+        <item>SHINY</item>
+        <item>AURA</item>
     </string-array>
 
 </resources>

@@ -10,12 +10,12 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_marginTop="5dp"
-            android:padding="5dp"
+            android:padding="2dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -24,20 +24,21 @@
                 android:layout_weight="0.5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ellipsize="marquee"
-                android:text="Type of animation for progress values affecting arc movements."/>
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Arc animation"/>
 
             <Spinner
                 android:layout_weight="0.5"
                 android:id="@+id/animationTypeSelector"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:entries="@array/animationTypes"/>
         </LinearLayout>
 
         <LinearLayout
             android:layout_marginTop="5dp"
-            android:padding="5dp"
+            android:padding="2dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -46,20 +47,21 @@
                 android:layout_weight="0.5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ellipsize="marquee"
-                android:text="Type of animation that adds a special effect to the whole view."/>
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Special effect"/>
 
             <Spinner
                 android:layout_weight="0.5"
                 android:id="@+id/opacityAnimationTypeSelector"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:entries="@array/opacityAnimationTypes"/>
         </LinearLayout>
 
         <LinearLayout
             android:layout_marginTop="5dp"
-            android:padding="5dp"
+            android:padding="2dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -68,13 +70,14 @@
                 android:layout_weight="0.5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ellipsize="marquee"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="Number of arcs"/>
 
             <SeekBar
                 android:layout_weight="0.5"
                 android:id="@+id/arcCountBar"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:max="30"
                 android:entries="@array/opacityAnimationTypes"/>
@@ -82,7 +85,7 @@
 
         <LinearLayout
             android:layout_marginTop="5dp"
-            android:padding="5dp"
+            android:padding="2dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -91,13 +94,14 @@
                 android:layout_weight="0.5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ellipsize="marquee"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="Arc stroke width"/>
 
             <SeekBar
                 android:layout_weight="0.5"
                 android:id="@+id/arcStrokeWidthBar"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:max="5000"
                 android:entries="@array/opacityAnimationTypes"/>
@@ -105,7 +109,7 @@
 
         <LinearLayout
             android:layout_marginTop="5dp"
-            android:padding="5dp"
+            android:padding="2dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -114,26 +118,30 @@
                 android:layout_weight="0.5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ellipsize="marquee"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="Padding between arcs"/>
 
             <SeekBar
                 android:layout_weight="0.5"
                 android:id="@+id/arcPaddingBar"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:max="1000"
                 android:entries="@array/opacityAnimationTypes"/>
         </LinearLayout>
 
-        <com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView
+        <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
             android:id="@+id/progress"
-            android:layout_gravity="center"
+            android:layout_gravity="center_horizontal|top"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:minHeight="300dp"
-            android:layout_margin="50dp"/>
+            android:layout_marginTop="10dp"
+            app:arcStrokeWidth="40.0"
+            app:arcSpacing="30.0"
+            app:arcCount="3" />
 
     </LinearLayout>
 

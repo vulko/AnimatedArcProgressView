@@ -7,7 +7,7 @@ import android.widget.AdapterView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 
-import com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView;
+import com.kvolkov.animatedprogressviews.ArcLoadingView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         final SeekBar arcNumSeekBar = (SeekBar) findViewById(R.id.arcCountBar);
         final SeekBar arcStrokeWidthSeekBar = (SeekBar) findViewById(R.id.arcStrokeWidthBar);
         final SeekBar arcPaddingSeekBar = (SeekBar) findViewById(R.id.arcPaddingBar);
-        final AnimatedArcIndefiniteProgressView progressView = (AnimatedArcIndefiniteProgressView) findViewById(R.id.progress);
+        final ArcLoadingView progressView = (ArcLoadingView) findViewById(R.id.progress);
 
         animationTypeSelector.setOnItemSelectedListener(new Spinner.OnItemSelectedListener(){
             @Override

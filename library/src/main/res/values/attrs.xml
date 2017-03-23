@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <declare-styleable name="AnimatedArcIndefiniteProgressView">
+    <declare-styleable name="ArcLoadingView">
         <attr name="arcCount" format="integer" />
         <attr name="arcStrokeWidth" format="float" />
         <attr name="arcSpacing" format="float" />
         <attr name="defaultColor" format="color" />
         <attr name="progressAnimation" format="enum">
-            <enum name="ProgressAnimationType.OPACITY_ANIMATION_TEST_STUB" value="-1" />
-            <enum name="ProgressAnimationType.RACE_CONDITION" value="0" />
-            <enum name="ProgressAnimationType.SWIRLY" value="1" />
-            <enum name="ProgressAnimationType.WHIRPOOL" value="2" />
-            <enum name="ProgressAnimationType.HYPERLOOP" value="3" />
-            <enum name="ProgressAnimationType.METRONOME_1" value="4" />
-            <enum name="ProgressAnimationType.METRONOME_2" value="5" />
-            <enum name="ProgressAnimationType.METRONOME_3" value="6" />
-            <enum name="ProgressAnimationType.METRONOME_4" value="7" />
-            <enum name="ProgressAnimationType.BUTTERFLY_KNIFE" value="8" />
-            <enum name="ProgressAnimationType.RAINBOW" value="9" />
-            <enum name="ProgressAnimationType.GOTCHA" value="10" />
+            <enum name="OPACITY_ANIMATION_TEST_STUB" value="-1" />
+            <enum name="RACE_CONDITION" value="0" />
+            <enum name="SWIRLY" value="1" />
+            <enum name="WHIRPOOL" value="2" />
+            <enum name="HYPERLOOP" value="3" />
+            <enum name="METRONOME_1" value="4" />
+            <enum name="METRONOME_2" value="5" />
+            <enum name="METRONOME_3" value="6" />
+            <enum name="METRONOME_4" value="7" />
+            <enum name="BUTTERFLY_KNIFE" value="8" />
+            <enum name="RAINBOW" value="9" />
+            <enum name="GOTCHA" value="10" />
         </attr>
     </declare-styleable>
 
