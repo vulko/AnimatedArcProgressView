@@ -22,6 +22,7 @@
         <item>BLINKING</item>
         <item>SHINY</item>
         <item>AURA</item>
+        <item>RIPPLE</item>
     </string-array>
 
 </resources>

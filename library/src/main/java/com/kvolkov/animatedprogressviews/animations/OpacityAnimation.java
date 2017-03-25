@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AnticipateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ public class OpacityAnimation {
     public static final int BLINKING = 1;
     public static final int SHINY = 2;
     public static final int AURA = 3;
+    public static final int RIPPLE = 4;
 
     /**
      * Animation durations in [ms] for opacity animation types. See {@code OpacityAnimation}.
@@ -32,11 +34,12 @@ public class OpacityAnimation {
             0,
             2000,
             1000,
-            1000
+            1000,
+            1000,
     };
 
     /**
-     * Opacity animation consts.
+     * Opacity animation consts. So far these are limits for opacity animtion.
      */
     private static int INITIAL_OPACITY = 255;
     private static int TARGET_OPACITY = 50;
@@ -49,6 +52,7 @@ public class OpacityAnimation {
      */
     private List<Integer> mAlphaOpacityList = new ArrayList<>();
     private List<ValueAnimator> mOpacityValueAnimatorList = new ArrayList<>();
+    private ValueAnimator mRippleEffectAnimator;
 
     /**
      * Constructor.
@@ -74,6 +78,7 @@ public class OpacityAnimation {
             case BLINKING:
             case SHINY:
             case AURA:
+            case RIPPLE:
                 mType = value;
                 break;
 
@@ -106,51 +111,6 @@ public class OpacityAnimation {
     }
 
     /**
-     * @return animation duration.
-     */
-    private long getDuration() {
-        return sOpacityAnimationDuration[mType];
-    }
-
-    /**
-     * Init opacity animators.
-     */
-    private void initAnimators() {
-        mAlphaOpacityList.clear();
-        for (int i = 0; i < mAnimatorCount; ++i) {
-            mAlphaOpacityList.add(INITIAL_OPACITY);
-        }
-
-        if (mType != OpacityAnimation.NONE) {
-
-            for (int i = 0; i < mAnimatorCount; ++ i) {
-                final ValueAnimator opacityAnimator = new ValueAnimator();
-
-                opacityAnimator.setDuration(getDuration());
-//                opacityAnimator.setStartDelay(ANIMATION_START_DELAY);
-                opacityAnimator.setRepeatCount(ValueAnimator.INFINITE);
-                opacityAnimator.setRepeatMode(ValueAnimator.RESTART);
-
-                switch (mType) {
-                    case OpacityAnimation.BLINKING:
-                        initBlinkingAnimators(i, opacityAnimator);
-                        break;
-
-                    case OpacityAnimation.SHINY:
-                        initShinyAnimators(i, opacityAnimator);
-                        break;
-
-                    case OpacityAnimation.AURA:
-                        initAuraAnimators(i, opacityAnimator);
-                        break;
-                }
-
-                mOpacityValueAnimatorList.add(opacityAnimator);
-            }
-        }
-    }
-
-    /**
      * Call this to explicitly restart opacity animation specified by {@code mType}.
      */
     public void restart() {
@@ -159,6 +119,10 @@ public class OpacityAnimation {
 
         for (int i = 0; i < mOpacityValueAnimatorList.size(); ++i) {
             mOpacityValueAnimatorList.get(i).start();
+        }
+
+        if (mRippleEffectAnimator != null) {
+            mRippleEffectAnimator.start();
         }
     }
 
@@ -176,6 +140,11 @@ public class OpacityAnimation {
             }
             mOpacityValueAnimatorList.clear();
         }
+
+        if (mRippleEffectAnimator != null) {
+            mRippleEffectAnimator.cancel();
+            mRippleEffectAnimator = null;
+        }
     }
 
     /**
@@ -185,7 +154,71 @@ public class OpacityAnimation {
      * @return  An int.
      */
     public int getAnimatedValue(int index) {
-        return mAlphaOpacityList.get(index);
+        switch (mType) {
+            case NONE:
+            case BLINKING:
+            case SHINY:
+            case AURA:
+                return mAlphaOpacityList.get(index);
+
+            case RIPPLE:
+                return mAlphaOpacityList.get(index);
+
+            default:
+                Log.e(getClass().getName(), "Unknown OpacityAnimationType! Animated value returned -1, should be in range [0..255]!");
+                return -1;
+        }
+    }
+
+    /**
+     * @return animation duration.
+     */
+    private long getDuration() {
+        return sOpacityAnimationDuration[mType];
+    }
+
+    /**
+     * Init opacity animators.
+     */
+    private void initAnimators() {
+        mAlphaOpacityList.clear();
+        for (int i = 0; i < mAnimatorCount; ++i) {
+            mAlphaOpacityList.add(INITIAL_OPACITY);
+        }
+
+        for (int i = 0; i < mAnimatorCount; ++ i) {
+            final ValueAnimator opacityAnimator = new ValueAnimator();
+
+            opacityAnimator.setDuration(getDuration());
+//                opacityAnimator.setStartDelay(ANIMATION_START_DELAY);
+            opacityAnimator.setRepeatCount(ValueAnimator.INFINITE);
+            opacityAnimator.setRepeatMode(ValueAnimator.RESTART);
+
+            switch (mType) {
+                case OpacityAnimation.NONE:
+                    // no need to init anything
+                    return;
+
+                case OpacityAnimation.BLINKING:
+                    initBlinkingAnimators(i, opacityAnimator);
+                    break;
+
+                case OpacityAnimation.SHINY:
+                    initShinyAnimators(i, opacityAnimator);
+                    break;
+
+                case OpacityAnimation.AURA:
+                    initAuraAnimators(i, opacityAnimator);
+                    break;
+
+                case OpacityAnimation.RIPPLE:
+                    initRippleAnimators(i, opacityAnimator);
+                    // no need to go through loop in case of this animation
+                    return;
+            }
+
+            mOpacityValueAnimatorList.add(opacityAnimator);
+        }
     }
 
     private void initBlinkingAnimators(final int index, ValueAnimator opacityAnimator) {
@@ -227,4 +260,42 @@ public class OpacityAnimation {
             }
         });
     }
+
+    private void initRippleAnimators(final int index, ValueAnimator opacityAnimator) {
+        final float opacityRange = (float) INITIAL_OPACITY - TARGET_OPACITY;
+        final float funcXRange = mAnimatorCount / 2.f;
+        if (mRippleEffectAnimator == null) {
+            mRippleEffectAnimator = new ValueAnimator();
+        }
+        mRippleEffectAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        mRippleEffectAnimator.setRepeatMode(ValueAnimator.RESTART);
+        mRippleEffectAnimator.setFloatValues((float) mAnimatorCount + funcXRange, -funcXRange);
+        mRippleEffectAnimator.setDuration(getDuration());
+        mRippleEffectAnimator.setInterpolator(new LinearInterpolator());
+        mRippleEffectAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                final float rippleRadius = (float) animation.getAnimatedValue();
+                for (int i = 0; i < mAlphaOpacityList.size(); ++i) {
+                    final float xVal = (float) i - rippleRadius;
+                    final float pow = 10.f / mAnimatorCount;
+                    final float opacityArcFactor = (float) (1.f - Math.pow(xVal, pow) / Math.pow(funcXRange, pow));
+                    int rippleOpacityValue = TARGET_OPACITY + Math.round(opacityRange * opacityArcFactor);
+                    if (rippleOpacityValue > 255) {
+                        rippleOpacityValue = 255;
+                    } else if (rippleOpacityValue < TARGET_OPACITY) {
+                        rippleOpacityValue = TARGET_OPACITY;
+                    }
+                    mAlphaOpacityList.set(i, rippleOpacityValue);
+                }
+            }
+        });
+
+
+        opacityAnimator.setRepeatMode(ValueAnimator.RESTART);
+        final float opacityDecelerateFactor = 1.f + 0.8f * (index + 1);
+        opacityAnimator.setInterpolator(new AnticipateInterpolator(opacityDecelerateFactor));
+        opacityAnimator.setIntValues(255, 50, 255, 50);
+    }
+
 }
