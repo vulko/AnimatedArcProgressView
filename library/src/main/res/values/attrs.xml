@@ -20,6 +20,13 @@
             <enum name="RAINBOW" value="9" />
             <enum name="GOTCHA" value="10" />
         </attr>
+        <attr name="opacityAnimation" format="enum">
+            <enum name="NONE" value="0" />
+            <enum name="BLINKING" value="1" />
+            <enum name="SHINY" value="2" />
+            <enum name="AURA" value="3" />
+            <enum name="RIPPLE" value="4" />
+        </attr>
     </declare-styleable>
 
 </resources>

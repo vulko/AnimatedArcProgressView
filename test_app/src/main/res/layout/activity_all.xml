@@ -2,11 +2,12 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/libs/com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context="com.kvolkov.animatedprogressviews.demo.AllProgressAnimationsActivity">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -112,10 +113,10 @@
             android:minHeight="300dp"
             android:layout_margin="50dp"
             app:defaultColor="@color/colorAccent"
-            app:arcCount="10"
-            app:arcSpacing="10.0"
+            app:arcCount="5"
+            app:arcSpacing="20.0"
             app:arcStrokeWidth="30.0"
-            app:progressAnimation="ProgressAnimationType.RACE_CONDITION"/>
+            app:progressAnimation="RACE_CONDITION"/>
 
         <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
@@ -126,10 +127,10 @@
             android:minHeight="300dp"
             android:layout_margin="50dp"
             app:defaultColor="@color/colorAccent"
-            app:arcCount="10"
-            app:arcSpacing="10.0"
+            app:arcCount="5"
+            app:arcSpacing="20.0"
             app:arcStrokeWidth="30.0"
-            app:progressAnimation="ProgressAnimationType.SWIRLY"/>
+            app:progressAnimation="SWIRLY"/>
 
         <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
@@ -140,10 +141,10 @@
             android:minHeight="300dp"
             android:layout_margin="50dp"
             app:defaultColor="@color/colorAccent"
-            app:arcCount="10"
-            app:arcSpacing="10.0"
+            app:arcCount="5"
+            app:arcSpacing="20.0"
             app:arcStrokeWidth="30.0"
-            app:progressAnimation="ProgressAnimationType.WHIRPOOL"/>
+            app:progressAnimation="WHIRPOOL"/>
 
         <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
@@ -154,10 +155,10 @@
             android:minHeight="300dp"
             android:layout_margin="50dp"
             app:defaultColor="@color/colorAccent"
-            app:arcCount="10"
-            app:arcSpacing="10.0"
+            app:arcCount="5"
+            app:arcSpacing="20.0"
             app:arcStrokeWidth="30.0"
-            app:progressAnimation="ProgressAnimationType.SWIRLY"/>
+            app:progressAnimation="SWIRLY"/>
 
         <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
@@ -168,10 +169,10 @@
             android:minHeight="300dp"
             android:layout_margin="50dp"
             app:defaultColor="@color/colorAccent"
-            app:arcCount="10"
-            app:arcSpacing="10.0"
+            app:arcCount="5"
+            app:arcSpacing="20.0"
             app:arcStrokeWidth="30.0"
-            app:progressAnimation="ProgressAnimationType.HYPERLOOP"/>
+            app:progressAnimation="HYPERLOOP"/>
 
         <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
@@ -182,10 +183,10 @@
             android:minHeight="300dp"
             android:layout_margin="50dp"
             app:defaultColor="@color/colorAccent"
-            app:arcCount="10"
-            app:arcSpacing="10.0"
+            app:arcCount="5"
+            app:arcSpacing="20.0"
             app:arcStrokeWidth="30.0"
-            app:progressAnimation="ProgressAnimationType.METRONOME_1"/>
+            app:progressAnimation="METRONOME_1"/>
 
         <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
@@ -196,10 +197,10 @@
             android:minHeight="300dp"
             android:layout_margin="50dp"
             app:defaultColor="@color/colorAccent"
-            app:arcCount="10"
-            app:arcSpacing="10.0"
+            app:arcCount="5"
+            app:arcSpacing="20.0"
             app:arcStrokeWidth="30.0"
-            app:progressAnimation="ProgressAnimationType.METRONOME_2"/>
+            app:progressAnimation="METRONOME_2"/>
 
         <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
@@ -210,10 +211,10 @@
             android:minHeight="300dp"
             android:layout_margin="50dp"
             app:defaultColor="@color/colorAccent"
-            app:arcCount="10"
-            app:arcSpacing="10.0"
+            app:arcCount="5"
+            app:arcSpacing="20.0"
             app:arcStrokeWidth="30.0"
-            app:progressAnimation="ProgressAnimationType.METRONOME_3"/>
+            app:progressAnimation="METRONOME_3"/>
 
         <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
@@ -224,10 +225,10 @@
             android:minHeight="300dp"
             android:layout_margin="50dp"
             app:defaultColor="@color/colorAccent"
-            app:arcCount="10"
-            app:arcSpacing="10.0"
+            app:arcCount="5"
+            app:arcSpacing="20.0"
             app:arcStrokeWidth="30.0"
-            app:progressAnimation="ProgressAnimationType.METRONOME_4"/>
+            app:progressAnimation="METRONOME_4"/>
 
         <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
@@ -238,10 +239,10 @@
             android:minHeight="300dp"
             android:layout_margin="50dp"
             app:defaultColor="@color/colorAccent"
-            app:arcCount="10"
-            app:arcSpacing="10.0"
+            app:arcCount="5"
+            app:arcSpacing="20.0"
             app:arcStrokeWidth="30.0"
-            app:progressAnimation="ProgressAnimationType.BUTTERFLY_KNIFE"/>
+            app:progressAnimation="BUTTERFLY_KNIFE"/>
 
 
         <com.kvolkov.animatedprogressviews.ArcLoadingView
@@ -253,10 +254,10 @@
             android:minHeight="300dp"
             android:layout_margin="50dp"
             app:defaultColor="@color/colorAccent"
-            app:arcCount="10"
-            app:arcSpacing="10.0"
+            app:arcCount="5"
+            app:arcSpacing="20.0"
             app:arcStrokeWidth="30.0"
-            app:progressAnimation="ProgressAnimationType.RAINBOW"/>
+            app:progressAnimation="RAINBOW"/>
 
         <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
@@ -267,10 +268,10 @@
             android:minHeight="300dp"
             android:layout_margin="50dp"
             app:defaultColor="@color/colorAccent"
-            app:arcCount="10"
-            app:arcSpacing="10.0"
+            app:arcCount="5"
+            app:arcSpacing="20.0"
             app:arcStrokeWidth="30.0"
-            app:progressAnimation="ProgressAnimationType.GOTCHA"/>
+            app:progressAnimation="GOTCHA"/>
 
         <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="1.0"
@@ -281,10 +282,10 @@
             android:minHeight="300dp"
             android:layout_margin="50dp"
             app:defaultColor="@color/colorAccent"
-            app:arcCount="10"
-            app:arcSpacing="10.0"
+            app:arcCount="5"
+            app:arcSpacing="20.0"
             app:arcStrokeWidth="30.0"
-            app:progressAnimation="ProgressAnimationType.OPACITY_ANIMATION_TEST_STUB"/>
+            app:progressAnimation="OPACITY_ANIMATION_TEST_STUB"/>
 
     </LinearLayout>
 </ScrollView>

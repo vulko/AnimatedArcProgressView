@@ -114,7 +114,8 @@ public class ArcLoadingView extends View {
                 setArcSpacing(a.getFloat(R.styleable.ArcLoadingView_arcSpacing, DEFAULT_ARC_SPACING));
                 setArcStrokeWidth(a.getFloat(R.styleable.ArcLoadingView_arcStrokeWidth, DEFAULT_ARC_STROKE_WIDTH));
                 setPrimaryColor(a.getColor(R.styleable.ArcLoadingView_defaultColor, DEFAULT_ARC_COLOR));
-                setProgressAnimationType(a.getInteger(R.styleable.ArcLoadingView_progressAnimation, ProgressAnimation.OPACITY_ANIMATION_TEST_STUB));
+                setProgressAnimationType(a.getInt(R.styleable.ArcLoadingView_progressAnimation, ProgressAnimation.OPACITY_ANIMATION_TEST_STUB));
+                setOpacityAnimationType(a.getInteger(R.styleable.ArcLoadingView_opacityAnimation, OpacityAnimation.NONE));
             } finally {
                 a.recycle();
             }
@@ -133,7 +134,8 @@ public class ArcLoadingView extends View {
     }
 
     /**
-     * Init color list with single color.
+     * Init color list with single color. Since {@code mColorList} is used for drawing,
+     * this should be called even when setting a single color.
      *
      * @param color A {@link ColorInt}.
      */
@@ -145,18 +147,19 @@ public class ArcLoadingView extends View {
     }
 
     /**
-     * Add color to color list.
+     * Setup color list to use separate color for each arc.
      *
-     * @param colorInt  A {@link ColorInt}.
+     * @param colorList List of colors for each arc.
      *
-     * @throws IllegalStateException In case of adding more colors, then there are arcs. See {@link #mArcCount}.
+     * @throws IllegalStateException List size should be same as {@code mArcCount} value. Thrown in case it doesn't.
      */
-    public void addColor(@ColorInt int colorInt) throws IllegalStateException {
-        mColorList.add(colorInt);
-
-        if (mColorList.size() > mArcCount) {
-            throw new IllegalStateException("can't add more colors as there are arcs!");
+    public void setColorList(List<Integer> colorList) throws IllegalStateException {
+        if (colorList.size() != mArcCount) {
+            throw new IllegalArgumentException("Color list should contain number of items equal to ArcCount.");
         }
+
+        mColorList.clear();
+        mColorList.addAll(colorList);
     }
 
     /**
@@ -195,7 +198,9 @@ public class ArcLoadingView extends View {
      * @param color  A {@link ColorInt}.
      */
     protected void setPrimaryColor(@ColorInt int color) {
-        mPrimaryColor = color;
+        if (mPrimaryColor != color) {
+            mPrimaryColor = color;
+        }
         initColorList(color);
     }
 
@@ -206,7 +211,6 @@ public class ArcLoadingView extends View {
      */
     public void setProgressAnimationType(int animationType) {
         mProgressAnimation.setType(animationType);
-
         restart();
     }
 
@@ -217,7 +221,6 @@ public class ArcLoadingView extends View {
      */
     public void setOpacityAnimationType(int animationType) {
         mOpacityAnimation.setType(animationType);
-
         restart();
     }
 
@@ -299,7 +302,7 @@ public class ArcLoadingView extends View {
         // preffered stroke width to match drawing exactly with the number of arcs and specified padding
         final int arcs = mArcCount + 1; // + 1 since no need to see circle in the middle
         final float leftSpace = prefferedDimension - mArcSpacing * arcs;
-        final float prefferedStrokeWidth;
+        final float prefferedStrokeWidth; // TODO: so far ignored, but mb should be used so arcs can't overlap. Or mb leave overlap effect to play with params.
         if (leftSpace >= 0.f) {
             prefferedStrokeWidth = leftSpace / arcs;
         } else {
@@ -332,6 +335,11 @@ public class ArcLoadingView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        if (!mInitialized) {
+            // ignore draws until initialized
+            return;
+        }
+
         super.onDraw(canvas);
 
         for (int i = 0; i < mArcCount; ++i) {

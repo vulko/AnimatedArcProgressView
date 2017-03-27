@@ -1,11 +1,11 @@
 package com.kvolkov.animatedprogressviews.animations;
 
 import android.animation.ValueAnimator;
+import android.support.annotation.IntRange;
 import android.util.Log;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AnticipateInterpolator;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,10 +39,10 @@ public class OpacityAnimation {
     };
 
     /**
-     * Opacity animation consts. So far these are limits for opacity animtion.
+     * Opacity values to animate between.
      */
-    private static int INITIAL_OPACITY = 255;
-    private static int TARGET_OPACITY = 50;
+    private int mInitialOpacity = 255;
+    private int mTargetOpacity = 150;
 
     private int mType = 0;
     private int mAnimatorCount;
@@ -91,10 +91,22 @@ public class OpacityAnimation {
     /**
      * Get animation type.
      *
-     * @return animation type
+     * @return animation type.
      */
     public int getType() {
         return mType;
+    }
+
+    /**
+     * Setup opacity values to animate between.
+     *
+     * @param initialOpacity    An int in range [0..255].
+     * @param targetOpacity     An int in range [0..255].
+     */
+    public void setOpacityValues(@IntRange(from = 0, to = 255) final int initialOpacity,
+                                 @IntRange(from = 0, to = 255) final int targetOpacity) {
+        mInitialOpacity = initialOpacity;
+        mTargetOpacity = targetOpacity;
     }
 
     /**
@@ -183,7 +195,7 @@ public class OpacityAnimation {
     private void initAnimators() {
         mAlphaOpacityList.clear();
         for (int i = 0; i < mAnimatorCount; ++i) {
-            mAlphaOpacityList.add(INITIAL_OPACITY);
+            mAlphaOpacityList.add(mInitialOpacity);
         }
 
         for (int i = 0; i < mAnimatorCount; ++ i) {
@@ -223,7 +235,7 @@ public class OpacityAnimation {
 
     private void initBlinkingAnimators(final int index, ValueAnimator opacityAnimator) {
         opacityAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-        opacityAnimator.setIntValues(INITIAL_OPACITY, TARGET_OPACITY, INITIAL_OPACITY);
+        opacityAnimator.setIntValues(mInitialOpacity, mTargetOpacity, mInitialOpacity);
         opacityAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -262,8 +274,9 @@ public class OpacityAnimation {
     }
 
     private void initRippleAnimators(final int index, ValueAnimator opacityAnimator) {
-        final float opacityRange = (float) INITIAL_OPACITY - TARGET_OPACITY;
+        final float opacityRange = (float) mInitialOpacity - mTargetOpacity;
         final float funcXRange = mAnimatorCount / 2.f;
+        final float pow = mAnimatorCount / 20.f;
         if (mRippleEffectAnimator == null) {
             mRippleEffectAnimator = new ValueAnimator();
         }
@@ -271,31 +284,24 @@ public class OpacityAnimation {
         mRippleEffectAnimator.setRepeatMode(ValueAnimator.RESTART);
         mRippleEffectAnimator.setFloatValues((float) mAnimatorCount + funcXRange, -funcXRange);
         mRippleEffectAnimator.setDuration(getDuration());
-        mRippleEffectAnimator.setInterpolator(new LinearInterpolator());
+        mRippleEffectAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         mRippleEffectAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 final float rippleRadius = (float) animation.getAnimatedValue();
                 for (int i = 0; i < mAlphaOpacityList.size(); ++i) {
                     final float xVal = (float) i - rippleRadius;
-                    final float pow = 10.f / mAnimatorCount;
                     final float opacityArcFactor = (float) (1.f - Math.pow(xVal, pow) / Math.pow(funcXRange, pow));
-                    int rippleOpacityValue = TARGET_OPACITY + Math.round(opacityRange * opacityArcFactor);
+                    int rippleOpacityValue = mTargetOpacity + Math.round(opacityRange * opacityArcFactor);
                     if (rippleOpacityValue > 255) {
                         rippleOpacityValue = 255;
-                    } else if (rippleOpacityValue < TARGET_OPACITY) {
-                        rippleOpacityValue = TARGET_OPACITY;
+                    } else if (rippleOpacityValue < mTargetOpacity) {
+                        rippleOpacityValue = mTargetOpacity;
                     }
                     mAlphaOpacityList.set(i, rippleOpacityValue);
                 }
             }
         });
-
-
-        opacityAnimator.setRepeatMode(ValueAnimator.RESTART);
-        final float opacityDecelerateFactor = 1.f + 0.8f * (index + 1);
-        opacityAnimator.setInterpolator(new AnticipateInterpolator(opacityDecelerateFactor));
-        opacityAnimator.setIntValues(255, 50, 255, 50);
     }
 
 }
