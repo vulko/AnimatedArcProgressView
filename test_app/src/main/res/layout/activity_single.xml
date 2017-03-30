@@ -131,6 +131,13 @@
                 android:entries="@array/opacityAnimationTypes"/>
         </LinearLayout>
 
+        <CheckBox
+            android:id="@+id/useColorListCB"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="Use different colors for arcs?"/>
+
         <com.kvolkov.animatedprogressviews.ArcLoadingView
             android:layout_weight="0.5"
             android:id="@+id/progress"
