@@ -35,18 +35,25 @@ Any view size is respected. There are several parameters to experiment with:
  - **arcStrokeWidth** Width or stroke, or thickness of arcs.
  - **progressAnimation** Animation type. Should be one of these:
     ```xml
-            <enum name="ProgressAnimationType.OPACITY_ANIMATION_TEST_STUB" value="-1" />
-            <enum name="ProgressAnimationType.RACE_CONDITION" value="0" />
-            <enum name="ProgressAnimationType.SWIRLY" value="1" />
-            <enum name="ProgressAnimationType.WHIRPOOL" value="2" />
-            <enum name="ProgressAnimationType.HYPERLOOP" value="3" />
-            <enum name="ProgressAnimationType.METRONOME_1" value="4" />
-            <enum name="ProgressAnimationType.METRONOME_2" value="5" />
-            <enum name="ProgressAnimationType.METRONOME_3" value="6" />
-            <enum name="ProgressAnimationType.METRONOME_4" value="7" />
-            <enum name="ProgressAnimationType.BUTTERFLY_KNIFE" value="8" />
-            <enum name="ProgressAnimationType.RAINBOW" value="9" />
-            <enum name="ProgressAnimationType.GOTCHA" value="10" />
+            <enum name="OPACITY_ANIMATION_TEST_STUB" value="-1" />
+            <enum name="RACE_CONDITION" value="0" />
+            <enum name="SWIRLY" value="1" />
+            <enum name="WHIRPOOL" value="2" />
+            <enum name="HYPERLOOP" value="3" />
+            <enum name="METRONOME_1" value="4" />
+            <enum name="METRONOME_2" value="5" />
+            <enum name="METRONOME_3" value="6" />
+            <enum name="METRONOME_4" value="7" />
+            <enum name="BUTTERFLY_KNIFE" value="8" />
+            <enum name="RAINBOW" value="9" />
+            <enum name="GOTCHA" value="10" />
+ - **opacityAnimation** Special effect type. Should be one of these:
+    ```xml
+            <enum name="NONE" value="0" />
+            <enum name="BLINKING" value="1" />
+            <enum name="SHINY" value="2" />
+            <enum name="AURA" value="3" />
+            <enum name="RIPPLE" value="4" />
     ```
 
   **Note** so far some other API's are already provided by the view itself, but not supported by custom attributes yet. Please stay tuned with this project, cause there will be some more feature development, and also the plan is to add some other animated views that look different from this one, but still are cool :)
@@ -70,7 +77,7 @@ repositories {
 }
 
 dependencies {
-    classpath ('com.kvolkov.animatedprogressviews:library:1.0') {
+    classpath ('com.kvolkov.animatedprogressviews:library:1.1') {
         // this in case you already have these import's in your project, otherwise skip it
         exclude group: 'com.android.support', module: 'appcompat-v7'
         exclude group: 'com.android.support', module: 'support-annotations'
@@ -79,7 +86,7 @@ dependencies {
 
 // MODULE GRADLE FILE
 dependencies {
-    compile ('com.kvolkov.animatedprogressviews:library:1.0') {
+    compile ('com.kvolkov.animatedprogressviews:library:1.1') {
         // this in case you already have these import's in your project, otherwise skip it
         exclude group: 'com.android.support', module: 'appcompat-v7'
         exclude group: 'com.android.support', module: 'support-annotations'
