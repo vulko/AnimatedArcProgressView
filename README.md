@@ -16,16 +16,17 @@ Usage is very simple. Just add this to your *layout.xml*:
             android:layout_width="match_parent"
             android:layout_height="300dp"
             android:layout_margin="50dp"
-            app:defaultColor="@color/colorAccent"
-            app:arcCount="10"
-            app:arcSpacing="10.0"
-            app:arcStrokeWidth="30.0"
-            app:progressAnimation="ProgressAnimationType.RACE_CONDITION"/>
+            progress:defaultColor="@color/colorPrimaryDark"
+            progress:arcCount="3"
+            progress:arcSpacing="20.0"
+            progress:arcStrokeWidth="30.0"
+            progress:progressAnimation="WHIRPOOL"
+            progress:opacityAnimation="SHINY"/>
 ```
 
 Might need to provide this for container layout to resolve *app* scheme. Or use custom scheme instead, if you are using *app* scheme already.
 ```
-  xmlns:app="http://schemas.android.com/apk/libs/com.kvolkov.animatedprogressviews.AnimatedArcIndefiniteProgressView"
+  xmlns:progress="http://schemas.android.com/apk/res-auto"
 ```
 
 Any view size is respected. There are several parameters to experiment with:
@@ -67,7 +68,7 @@ https://youtu.be/AVs89qdmeOE
 
 **Import to your project**
 ======
-You can download an **aar** here: https://dl.bintray.com/vulko/AnimatedArcProgressView/com/kvolkov/animatedprogressviews/library/1.0/
+You can download an **aar** here: https://dl.bintray.com/vulko/AnimatedArcProgressView/com/kvolkov/animatedprogressviews/library/
 
 Or use Gradle:
 ```gradle
